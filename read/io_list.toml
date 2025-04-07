@@ -1,0 +1,154 @@
+[[sensor]]
+name = "B0101"
+descr = "Temperature in stabilizer tank"
+type = "EZO-RTD"
+com_prot = "I2C"
+address = "101"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0201"
+descr = "Temperature in evaporator tank"
+type = "EZO-RTD"
+com_prot = "I2C"
+address = "102"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0102"
+descr = "pH in stabilizer tank"
+type = "EZO-pH"
+com_prot = "I2C"
+address = "90"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0202"
+descr = "pH in evaporator tank"
+type = "EZO-pH"
+com_prot = "I2C"
+address = "99"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0103"
+descr = "El. conductivity in stabilizer tank"
+type = "EZO-EC"
+com_prot = "I2C"
+address = "92"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0203"
+descr = "El. conductivity in evaporator tank"
+type = "EZO-EC"
+com_prot = "I2C"
+address = "100"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0401"
+descr = "Rel. humidity upstream evaporator"
+type = "EZO-HUM-RH"
+com_prot = "I2C"
+address = "110"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0402"
+descr = "Rel. humidity downstream evaporator"
+type = "EZO-HUM-RH"
+com_prot = "I2C"
+address = "111"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0403"
+descr = "Rel. humidity upstream evaporator"
+type = "EZO-HUM-T"
+com_prot = "I2C"
+address = "110"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0404"
+descr = "Rel. humidity downstream evaporator"
+type = "EZO-HUM-T"
+com_prot = "I2C"
+address = "111"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0104"
+descr = "Level sensor stabilizer tank"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in0"
+gain = "-6.52623"
+offset = "60.4816"
+calibrated = "yes"
+
+[[sensor]]
+name = "B0204"
+descr = "Level sensor stabilizer tank"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in1"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[actuator]]
+name = "M0101"
+descr = "recirculation pump (peri pump)"
+type = "PX-Rel"
+com_prot = "SPI"
+address = "relay0"
+
+[[actuator]]
+name = "M0102"
+descr = "feed pump (peri pump)"
+type = "PX-Rel"
+com_prot = "SPI"
+address = "relay1"
+
+[[actuator]]
+name = "M1101"
+descr = "feed pump stabi (peri pump)"
+type = "PX-Rel"
+com_prot = "SPI"
+address = "relay2"
+
+[[actuator]]
+name = "M1202"
+descr = "feed pump stabi (peri pump)"
+type = "PX-Rel"
+com_prot = "SPI"
+address = "relay3"
+
+[[actuator]]
+name = "M1201"
+descr = "stirrer"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out0"
