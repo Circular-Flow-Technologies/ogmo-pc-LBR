@@ -1,0 +1,354 @@
+import threading
+import datetime
+import numpy as np
+import time
+import os
+import tomllib
+
+from src.utils import get_file_path
+ 
+
+class routines:
+    def __init__(self, start_time, folder, parameter_file_name):
+
+        """
+        Constructor to initialize the sensor object from sensor data.
+        """
+        self.start_time = start_time
+
+        # initial wait time [s] (to avoid missing first cycles when intervall is rel. long. has to be longer than longest delay)
+        self.parameter_file_path = get_file_path(folder, parameter_file_name)
+        pl = self.load_parameter_list()
+        self.initial_wait_time = float(pl.get("initial_wait_time"))
+
+        # create shutdown event
+        self.shutdown_event = threading.Event()  # Used to stop threads gracefully
+
+        # allocate for sensor measurement data
+        self.sensor_data = []
+
+
+    # Data acquisition
+    def data_acquisition(self, sensors):
+
+        while not self.shutdown_event.is_set():
+            # Generate the current timestamp and runtime
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            global_runtime = time.time() - self.start_time
+            row = [timestamp, global_runtime]
+            
+            # Read sensor values
+            for sensor in sensors:
+                value = sensor.read_value()
+                row.append(value)
+            
+            # Append the new row to sensor data
+            self.sensor_data.append(row)
+            time.sleep(1)  # Simulate reading every 1 second
+
+        # Get the current date for the file name
+        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+        # get the path to the data directory for storage
+        file_name = f"{current_date}_FuMu-DS_sensor_data.npy"
+        file_path = get_file_path("data", file_name)
+
+        # Check if the file exists
+        if os.path.exists(file_path):
+            # If the file exists, load existing data
+            existing_data = np.load(file_path, allow_pickle=True).tolist()
+            # Merge new data with existing data
+            existing_data.extend(self.sensor_data)
+            # Save the merged data back to the file
+            np.save(file_path, np.array(existing_data))
+        else:
+            # If the file doesn't exist, save the new data to the file
+            np.save(file_path, np.array(self.sensor_data))
+        
+        print(f"Data saved to {file_path}")
+
+
+    # cyclic routine: evaporator feed
+    def evaporator_feed(self, actuators, sensors, actuator_name_list, sensor_name_list):
+
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            tau_M0102_interval  = float(pl.get("tau_M0102_interval"))
+            tau_M0102_runtime   = float(pl.get("tau_M0102_runtime"))
+            tau_M0102_delay     = float(pl.get("tau_M0102_delay"))
+            threshold_min_B0101 = float(pl.get("threshold_min_B0101"))
+
+            if tau_M0102_interval-tau_M0102_runtime <=1:
+                print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
+
+            # get instance of required S&A
+            act_M0102 = actuators[actuator_name_list.index("M0102")]
+            sen_B0101 = sensors[sensor_name_list.index("B0101")]
+
+
+            current_runtime = time.time() - (self.start_time + self.initial_wait_time)
+            if int(current_runtime - tau_M0102_delay) % int(tau_M0102_interval) == 0:
+
+                if sen_B0101.value > threshold_min_B0101:
+                    # Turn actuator on
+                    print(f"[Pump Control] Activating evaporator feed pump and valve at runtime: {current_runtime:.2f}s")
+                    act_M0102.set_state(True)
+
+                    time.sleep(tau_M0102_runtime)  # Wait for the specified runtime
+                    
+                    # Turn actuator off
+                    print(f"[Pump Control] Deactivating evaporator feed pump and valve at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
+                    act_M0102.set_state(False)
+                else:
+                    print("\n[[GUI]]")
+                    print(f"Liquid level ({sen_B0101.value}) in stabilizer tank bellow minimum ({threshold_min_B0101}). No feed to evaporator.")
+
+            time.sleep(0.1)
+
+
+    # cyclic routine: stabilizer stirrer 
+    def stabilizer_stirrer(self, actuators, actuator_name_list):
+
+        while not self.shutdown_event.is_set():
+            pl_DS = self.load_parameter_list()
+            tau_M0101_interval = float(pl_DS.get("tau_M0101_interval"))
+            tau_M0101_runtime  = float(pl_DS.get("tau_M0101_runtime"))
+            tau_M0101_delay  = float(pl_DS.get("tau_M0101_delay"))
+
+            if tau_M0101_interval-tau_M0101_runtime <=1:
+                print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
+
+            # get instance of required S&A
+            act_M0101 = actuators[actuator_name_list.index("M0101")]
+        
+            current_runtime = time.time() - (self.start_time + self.initial_wait_time)
+            if int(current_runtime - tau_M0101_delay) % int(tau_M0101_interval) == 0:
+                # Turn actuator on
+                print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
+                act_M0101.set_state(True)
+
+                time.sleep(tau_M0101_runtime)  # Wait for the specified runtime
+                
+                # Turn actuator off
+                print(f"[Pump Control] Deactivating stabilizer stirrer at runtime: {current_runtime + tau_M0101_runtime:.2f}s")
+                act_M0101.set_state(False)
+
+            time.sleep(0.1)
+
+
+    # triggered routine: collector flush
+    def collector_flush(self, actuators, sensors, actuator_name_list, sensor_name_list):
+        
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            tau_M0111_runtime   = float(pl.get("tau_M0111_runtime"))
+            tau_M0111_delay     = float(pl.get("tau_M0111_delay"))
+            threshold_min_B0111 = float(pl.get("threshold_min_B0111"))
+
+            # get instance of required S&A
+            act_M0111 = actuators[actuator_name_list.index("M0111")]
+            sen_B0111 = sensors[sensor_name_list.index("B0111")]
+
+            if sen_B0111.value > threshold_min_B0111:
+
+                # ----- TO BE IMPLEMENTED -----
+                # Increment event counter
+                # Increment cumulative inflow volume
+                # -----------------------------
+
+                print("\n[[GUI]]")
+                print("Inflow detected.")
+
+                # Wait for the specified pre-delay
+                time.sleep(tau_M0111_delay)
+
+                # Turn actuator on
+                # print(f"[Pump Control] Activating concentrator flush pump and valve at runtime: {current_runtime:.2f}s")
+                act_M0111.set_state(True)
+
+                # Wait for the specified runtime
+                time.sleep(tau_M0111_runtime)
+                
+                # Turn actuator off
+                #print(f"[Pump Control] Deactivating evaporator feed pump and valve at runtime: {current_runtime + tau_M0111_runtime:.2f}s")
+                act_M0111.set_state(False)
+
+
+            time.sleep(0.1)
+
+
+    # triggered routine: collector drain
+    def collector_drain(self, actuators, sensors, actuator_name_list, sensor_name_list):
+        
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            tau_M0112_runtime   = float(pl.get("tau_M0112_runtime"))
+            tau_M0112_delay     = float(pl.get("tau_M0112_delay"))
+            threshold_min_B0112 = float(pl.get("threshold_min_B0112"))
+
+            # get instance of required S&A
+            act_M0112 = actuators[actuator_name_list.index("M0112")]
+            sen_B0112 = sensors[sensor_name_list.index("B0112")]
+
+            if sen_B0112.value > threshold_min_B0112:
+
+                # Wait for the specified pre-delay
+                time.sleep(tau_M0112_delay)
+
+                # Turn actuator on
+                # print(f"[Pump Control] Activating concentrator flush pump and valve at runtime: {current_runtime:.2f}s")
+                act_M0112.set_state(True)
+
+                # Wait for the specified runtime
+                time.sleep(tau_M0112_runtime)
+                
+                # Turn actuator off
+                #print(f"[Pump Control] Deactivating evaporator feed pump and valve at runtime: {current_runtime + tau_M0112_runtime:.2f}s")
+                act_M0112.set_state(False)
+
+
+            time.sleep(0.1)
+
+
+    # running routine: evaporation
+    def evaporation(self, actuators, sensors, actuator_name_list, sensor_name_list):
+        
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
+
+            # get instance of required S&A
+            act_M0201 = actuators[actuator_name_list.index("M0201")]
+            act_M0202 = actuators[actuator_name_list.index("M0202")]
+            act_M0301 = actuators[actuator_name_list.index("M0301")]
+            sen_B0201 = sensors[sensor_name_list.index("B0201")]
+
+            if sen_B0201.value > threshold_min_B0201:
+
+                # Turn actuators ON
+                act_M0201.set_state(True) # disc motor
+                act_M0202.set_state(True) # fans
+                act_M0301.set_state(True) # dehumidifier
+
+            else:
+
+                # Turn actuators OFF
+                act_M0201.set_state(False) # disc motor
+                act_M0202.set_state(False) # fans
+                act_M0301.set_state(False) # dehumidifier
+
+            time.sleep(1)
+
+
+    # cyclic routine: concentrate discharge
+    def concentrate_discharge(self, actuators, sensors, actuator_name_list, sensor_name_list):
+
+        while not self.shutdown_event.is_set():
+            pl_DS = self.load_parameter_list()
+            tau_M0203_interval = float(pl_DS.get("tau_M0203_interval"))
+            tau_M0203_runtime  = float(pl_DS.get("tau_M0203_runtime"))
+            tau_M0203_delay  = float(pl_DS.get("tau_M0203_delay"))
+
+            if tau_M0203_interval-tau_M0203_runtime <=1:
+                print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
+
+            # get instance of required S&A
+            act_M0203 = actuators[actuator_name_list.index("M0203")]
+            sen_B0401 = sensors[sensor_name_list.index("B0401")]
+        
+            current_runtime = time.time() - (self.start_time + self.initial_wait_time)
+            if int(current_runtime - tau_M0203_delay) % int(tau_M0203_interval) == 0:
+
+                # only discharge when concentrate tank is not full
+                # check whether sensor is NO or NC (here NC is assumed)
+                if sen_B0401.state == True:
+                    # Turn actuator on
+                    #print(f"[Pump Control] Activating sludge pump at runtime: {current_runtime:.2f}s")
+                    act_M0203.set_state(True)
+
+                    time.sleep(tau_M0203_runtime)  # Wait for the specified runtime
+                    
+                    # Turn actuator off
+                    #print(f"[Pump Control] Deactivating sludge pump at runtime: {current_runtime + tau_M0203_runtime:.2f}s")
+                    act_M0203.set_state(False)
+
+                else:
+                    print("\n[[GUI]]")
+                    print("Concentrate tank is full")
+
+
+            time.sleep(0.1)
+
+
+    # observer routine
+    def observer(self, sensors, sensor_name_list):
+        
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            threshold_max_B0101 = float(pl.get("threshold_max_B0101"))
+            threshold_min_B0102 = float(pl.get("threshold_min_B0102"))
+            threshold_min_B0202 = float(pl.get("threshold_min_B0202"))
+
+            # get instance of required S&A
+            sen_B0101 = sensors[sensor_name_list.index("B0101")]
+            sen_B0102 = sensors[sensor_name_list.index("B0102")]
+            sen_B0202 = sensors[sensor_name_list.index("B0202")]
+
+            if sen_B0102.value < threshold_min_B0102:
+                print("\n[[GUI]]")
+                print(f"pH in Stabilizer is too low.")
+
+            if sen_B0202.value < threshold_min_B0202:    
+                print("\n[[GUI]]")
+                print(f"pH in Evaporator is too low.")
+            
+            if sen_B0101.value > threshold_max_B0101:
+                print(f"Liquid level ({sen_B0101.value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
+
+            time.sleep(10)
+
+    
+    # Clean up after keyboard interrupt
+    def handle_shutdown(self, pxt):
+        print("\nShutdown signal received. Cleaning up...")
+        self.shutdown_event.set()
+
+        # clean-up and close PiXtend instance
+        pxt.digital_out0  = pxt.OFF
+        pxt.digital_out1  = pxt.OFF
+        pxt.digital_out2  = pxt.OFF
+        pxt.digital_out3  = pxt.OFF
+        pxt.digital_out4  = pxt.OFF
+        pxt.digital_out5  = pxt.OFF
+        pxt.digital_out6  = pxt.OFF
+        pxt.digital_out7  = pxt.OFF
+        pxt.digital_out8  = pxt.OFF
+        pxt.digital_out9  = pxt.OFF
+        pxt.digital_out10 = pxt.OFF
+        pxt.digital_out11 = pxt.OFF
+        pxt.relay0 = pxt.OFF
+        pxt.relay1 = pxt.OFF
+        pxt.relay2 = pxt.OFF
+        pxt.relay3 = pxt.OFF
+        time.sleep(0.25)
+        pxt.close()
+        time.sleep(0.25)
+        del pxt
+        pxt = None
+        print("\nPiXtend instance closed and deleted")
+
+    # Function to load process control parameters from the TOML file
+    def load_parameter_list(self):
+        with open(self.parameter_file_path, "rb") as f:
+            parameter_list = tomllib.load(f)
+        return parameter_list

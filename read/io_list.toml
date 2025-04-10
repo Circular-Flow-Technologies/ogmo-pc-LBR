@@ -1,19 +1,31 @@
+# SENSORS
+# ----------------------------------------
 [[sensor]]
-name = "B0101"
-descr = "Temperature in stabilizer tank"
-type = "EZO-RTD"
-com_prot = "I2C"
-address = "101"
+name = "B0001"
+descr = "current sensor"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in0"
 gain = "1.0"
 offset = "0.0"
 calibrated = ""
 
 [[sensor]]
-name = "B0201"
-descr = "Temperature in evaporator tank"
-type = "EZO-RTD"
-com_prot = "I2C"
-address = "102"
+name = "B0101"
+descr = "Level sensor stabilizer tank"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in1"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "B0111"
+descr = "Level sensor collector tube"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in2"
 gain = "1.0"
 offset = "0.0"
 calibrated = ""
@@ -24,6 +36,26 @@ descr = "pH in stabilizer tank"
 type = "EZO-pH"
 com_prot = "I2C"
 address = "90"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+# [[sensor]]
+# name = "B0103"
+# descr = "Temperature in stabilizer tank"
+# type = "EZO-RTD"
+# com_prot = "I2C"
+# address = "101"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+[[sensor]]
+name = "B0201"
+descr = "Level sensor evaporator"
+type = "PX-AI"
+com_prot = "SPI"
+address = "analog_in3"
 gain = "1.0"
 offset = "0.0"
 calibrated = ""
@@ -39,116 +71,154 @@ offset = "0.0"
 calibrated = ""
 
 [[sensor]]
-name = "B0103"
-descr = "El. conductivity in stabilizer tank"
-type = "EZO-EC"
+name = "B0203"
+descr = "Temperature in evaporator tank"
+type = "EZO-RTD"
 com_prot = "I2C"
-address = "92"
+address = "102"
 gain = "1.0"
 offset = "0.0"
 calibrated = ""
 
-[[sensor]]
-name = "B0203"
-descr = "El. conductivity in evaporator tank"
-type = "EZO-EC"
-com_prot = "I2C"
-address = "100"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
+# [[sensor]]
+# name = "B0104"
+# descr = "El. conductivity in stabilizer tank"
+# type = "EZO-EC"
+# com_prot = "I2C"
+# address = "92"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
+# name = "B0204"
+# descr = "El. conductivity in evaporator tank"
+# type = "EZO-EC"
+# com_prot = "I2C"
+# address = "100"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
+# name = "B0301"
+# descr = "Rel. humidity upstream evaporator"
+# type = "EZO-HUM-RH"
+# com_prot = "I2C"
+# address = "110"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
+# name = "B0303"
+# descr = "Rel. humidity downstream evaporator"
+# type = "EZO-HUM-RH"
+# com_prot = "I2C"
+# address = "111"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
+# name = "B0302"
+# descr = "Rel. humidity upstream evaporator"
+# type = "EZO-HUM-T"
+# com_prot = "I2C"
+# address = "110"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
+# name = "B0304"
+# descr = "Rel. humidity downstream evaporator"
+# type = "EZO-HUM-T"
+# com_prot = "I2C"
+# address = "111"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
 
 [[sensor]]
 name = "B0401"
-descr = "Rel. humidity upstream evaporator"
-type = "EZO-HUM-RH"
-com_prot = "I2C"
-address = "110"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
-
-[[sensor]]
-name = "B0402"
-descr = "Rel. humidity downstream evaporator"
-type = "EZO-HUM-RH"
-com_prot = "I2C"
-address = "111"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
-
-[[sensor]]
-name = "B0403"
-descr = "Rel. humidity upstream evaporator"
-type = "EZO-HUM-T"
-com_prot = "I2C"
-address = "110"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
-
-[[sensor]]
-name = "B0404"
-descr = "Rel. humidity downstream evaporator"
-type = "EZO-HUM-T"
-com_prot = "I2C"
-address = "111"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
-
-[[sensor]]
-name = "B0104"
-descr = "Level sensor stabilizer tank"
+descr = "Level switch stabilizer tank"
 type = "PX-AI"
 com_prot = "SPI"
-address = "analog_in0"
-gain = "-6.52623"
-offset = "60.4816"
-calibrated = "yes"
-
-[[sensor]]
-name = "B0204"
-descr = "Level sensor stabilizer tank"
-type = "PX-AI"
-com_prot = "SPI"
-address = "analog_in1"
+address = "digital_in0"
 gain = "1.0"
 offset = "0.0"
 calibrated = ""
 
+
+# ACTUATORS
+# ----------------------------------------
 [[actuator]]
 name = "M0101"
-descr = "recirculation pump (peri pump)"
+descr = "stabilizer stirrer"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out6"
+
+[[actuator]]
+name = "M0102"
+descr = "evaporaor feed pump (peri pump)"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out2"
+
+[[actuator]]
+name = "M0111"
+descr = "collector drain pump (peri pump)"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out4"
+
+[[actuator]]
+name = "M0112"
+descr = "collector flush pump (peri pump)"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out5"
+
+[[actuator]]
+name = "M0201"
+descr = "disc motor"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out7"
+
+[[actuator]]
+name = "M0202"
+descr = "screw motor"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out8"
+
+[[actuator]]
+name = "M0203"
+descr = "concentrate discharge pump (peri pump)"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out3"
+
+[[actuator]]
+name = "M0204"
+descr = "evaporator fan(s)"
 type = "PX-Rel"
 com_prot = "SPI"
 address = "relay0"
 
 [[actuator]]
-name = "M0102"
-descr = "feed pump (peri pump)"
-type = "PX-Rel"
-com_prot = "SPI"
-address = "relay1"
-
-[[actuator]]
-name = "M1101"
-descr = "feed pump stabi (peri pump)"
-type = "PX-Rel"
-com_prot = "SPI"
-address = "relay2"
-
-[[actuator]]
-name = "M1202"
-descr = "feed pump stabi (peri pump)"
-type = "PX-Rel"
-com_prot = "SPI"
-address = "relay3"
-
-[[actuator]]
-name = "M1201"
-descr = "stirrer"
+name = "M0301"
+descr = "dehumidifier 230V"
 type = "PX-DO"
 com_prot = "SPI"
 address = "digital_out0"
+
+[[actuator]]
+name = "M0501"
+descr = "stripping air pump"
+type = "PX-DO"
+com_prot = "SPI"
+address = "digital_out9"

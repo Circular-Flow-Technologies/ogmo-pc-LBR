@@ -1,25 +1,27 @@
 import tomllib
-import time
+
+from pathlib import Path
 from src.AtlasI2C_orig import AtlasI2C
 
 class Sensor:
-    def __init__(self, sensor_data, pxt):
+    def __init__(self, sensor_meta_data, pxt):
         """
         Constructor to initialize the sensor object from sensor data.
         """
-        self.name       = sensor_data["name"]
-        self.descr      = sensor_data["descr"]
-        self.type       = sensor_data["type"]
-        self.com_prot   = sensor_data["com_prot"]
-        self.address    = sensor_data["address"]
-        self.value      = 0.0 
-        self.gain       = float(sensor_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.offset     = float(sensor_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.name       = sensor_meta_data["name"]
+        self.descr      = sensor_meta_data["descr"]
+        self.type       = sensor_meta_data["type"]
+        self.com_prot   = sensor_meta_data["com_prot"]
+        self.address    = sensor_meta_data["address"]
+        self.value      = 0.0
+        self.gain       = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.offset     = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.state      = True 
         self.connected  = False  # Default connection status
         self.configured = False  # Default connection status
         
         # check whether sensor is calibrated with knonw data
-        if sensor_data["calibrated"] == "yes" or sensor_data["calibrated"] == "Yes":
+        if sensor_meta_data["calibrated"] == "yes" or sensor_meta_data["calibrated"] == "Yes":
             self.calibrated = True  # Default calibration status
         else:
             self.calibrated = False
@@ -221,17 +223,65 @@ class Sensor:
                 elif self.address == "analog_in1":
                     self.value = self.pxt.analog_in1*self.gain + self.offset
 
+                elif self.address == "analog_in2":
+                    self.value = self.pxt.analog_in2*self.gain + self.offset
+
+                elif self.address == "analog_in3":
+                    self.value = self.pxt.analog_in3*self.gain + self.offset
+
+                elif self.address == "analog_in4":
+                    self.value = self.pxt.analog_in4*self.gain + self.offset
+
+                elif self.address == "analog_in5":
+                    self.value = self.pxt.analog_in5*self.gain + self.offset
+
                 elif self.address == "digital_in0":
-                    self.value = self.pxt.digital_in0
+                    self.state = bool(self.pxt.digital_in0)
 
                 elif self.address == "digital_in1":
-                    self.value = self.pxt.digital_in1
+                    self.state = bool(self.pxt.digital_in1)
 
                 elif self.address == "digital_in2":
-                    self.value = self.pxt.digital_in2
+                    self.state = bool(self.pxt.digital_in2)
 
                 elif self.address == "digital_in3":
-                    self.value = self.pxt.digital_in3
+                    self.state = bool(self.pxt.digital_in3)
+
+                elif self.address == "digital_in4":
+                    self.state = bool(self.pxt.digital_in4)
+
+                elif self.address == "digital_in5":
+                    self.state = bool(self.pxt.digital_in5)
+
+                elif self.address == "digital_in6":
+                    self.state = bool(self.pxt.digital_in6)
+
+                elif self.address == "digital_in7":
+                    self.state = bool(self.pxt.digital_in7)
+
+                elif self.address == "digital_in8":
+                    self.state = bool(self.pxt.digital_in8)
+
+                elif self.address == "digital_in9":
+                    self.state = bool(self.pxt.digital_in9)
+
+                elif self.address == "digital_in10":
+                    self.state = bool(self.pxt.digital_in10)
+
+                elif self.address == "digital_in11":
+                    self.state = bool(self.pxt.digital_in11)
+
+                elif self.address == "digital_in12":
+                    self.state = bool(self.pxt.digital_in12)
+
+                elif self.address == "digital_in13":
+                    self.state = bool(self.pxt.digital_in13)
+
+                elif self.address == "digital_in14":
+                    self.state = bool(self.pxt.digital_in14)
+
+                elif self.address == "digital_in15":
+                    self.state = bool(self.pxt.digital_in15)
 
                 else:
                     print(f"Sensor address '{self.address}' is either unknown or has not yet been implemented.")
@@ -248,22 +298,22 @@ class Sensor:
 
 
 class Actuator:
-    def __init__(self, actuator_data, pxt):
+    def __init__(self, actuator_meta_data, pxt):
         """
         Constructor to initialize the actuator object from actuator data.
         """
-        self.name = actuator_data["name"]
-        self.descr = actuator_data["descr"]
-        self.type = actuator_data["type"]
-        self.address = actuator_data["address"]
-        self.com_prot = actuator_data["com_prot"]
+        self.name = actuator_meta_data["name"]
+        self.descr = actuator_meta_data["descr"]
+        self.type = actuator_meta_data["type"]
+        self.address = actuator_meta_data["address"]
+        self.com_prot = actuator_meta_data["com_prot"]
         self.configured = False  # Default status
         self.state = False  # Default state
 
         # PiXtend instance (same for all sensors and actuators)
         self.pxt = pxt
 
-        # configure actuators
+        # perform actuator configuration
         self.configure()
 
     
@@ -334,38 +384,89 @@ class Actuator:
                     self.pxt.digital_out3 = self.pxt.ON
                 else:
                     self.pxt.digital_out3 = self.pxt.OFF
+
+            elif self.address == "digital_out4":
+                if state == True:
+                    self.pxt.digital_out4 = self.pxt.ON
+                else:
+                    self.pxt.digital_out4 = self.pxt.OFF
+
+            elif self.address == "digital_out5":
+                if state == True:
+                    self.pxt.digital_out5 = self.pxt.ON
+                else:
+                    self.pxt.digital_out5 = self.pxt.OFF
+                    
+            elif self.address == "digital_out6":
+                if state == True:
+                    self.pxt.digital_out6 = self.pxt.ON
+                else:
+                    self.pxt.digital_out6 = self.pxt.OFF
+                    
+            elif self.address == "digital_out7":
+                if state == True:
+                    self.pxt.digital_out7 = self.pxt.ON
+                else:
+                    self.pxt.digital_out7 = self.pxt.OFF
+                    
+            elif self.address == "digital_out8":
+                if state == True:
+                    self.pxt.digital_out8 = self.pxt.ON
+                else:
+                    self.pxt.digital_out8 = self.pxt.OFF
+                    
+            elif self.address == "digital_out9":
+                if state == True:
+                    self.pxt.digital_out9 = self.pxt.ON
+                else:
+                    self.pxt.digital_out9 = self.pxt.OFF
+                    
             else:
                 print(f"Actuator address '{self.address}' is unknown.")
         else:
             print(f"Actuator '{self.name}' is not configured. State cannot be set.")
 
-    
 
 
-def load_sensors_from_toml(file_path, pxt):
+
+def get_file_path(folder, filename):
+    project_root = Path.cwd().resolve()
+    return project_root / folder/ filename
+
+# Function to load sensor meta data from the TOML file
+def load_sensors_from_toml(folder, file_name, pxt):
     """
     Load sensor data from a TOML file and initialize Sensor objects.
     """
+    file_path = get_file_path(folder, file_name)
     with open(file_path, "rb") as f:
         io_list = tomllib.load(f)
     
     sensors = []
-    for sensor_data in io_list["sensor"]:
-        sensor = Sensor(sensor_data, pxt)
+    for sensor_meta_data in io_list["sensor"]:
+        sensor = Sensor(sensor_meta_data, pxt)
         sensors.append(sensor)
     
     return sensors
 
-def load_actuators_from_toml(file_path, pxt):
+
+# Function to load actuator meta data from the TOML file
+def load_actuators_from_toml(folder, file_name, pxt):
     """
     Load actuator data from a TOML file and initialize Actuator objects.
     """
+    file_path = get_file_path(folder, file_name)
     with open(file_path, "rb") as f:
         io_list = tomllib.load(f)
     
     actuators = []
-    for actuator_data in io_list["actuator"]:
-        actuator = Actuator(actuator_data, pxt)
+    for actuator_meta_data in io_list["actuator"]:
+        actuator = Actuator(actuator_meta_data, pxt)
         actuators.append(actuator)
     
     return actuators
+
+
+
+
+

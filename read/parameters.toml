@@ -1,10 +1,33 @@
-tau_data_acq = "60"
-tau_M1101_interval = "3600"
-tau_M1101_runtime = "85"
-tau_M1101_delay = "60"
-tau_M1201_interval = "3600"
-tau_M1201_runtime = "90"
-tau_M1201_delay = "150"
-tau_M1202_interval = "3600"
-tau_M1202_runtime = "55"
-tau_M1202_delay = "0"
+abort_flag                 = "False"
+tau_dataq                  = "60"
+initial_wait_time          = "5"
+
+# collector tube
+tau_M0111_runtime          = "30"
+tau_M0111_delay            = "60"
+tau_M0112_runtime          = "15"
+tau_M0112_delay            = "60"
+threshold_B0111            = "0.05"   # minimum input volume in collector for event detection
+
+# stabilizer stirrer
+tau_M0101_interval         = "10"
+tau_M0101_runtime          = "3"
+tau_M0101_delay            = "0"
+
+# evaporator feed
+tau_M0102_interval         = "3"
+tau_M0102_runtime          = "1"
+tau_M0102_delay            = "0"
+threshold_min_B0101        = "-3"      # minimum liquid level in stabilizer
+threshold_max_B0101        = "60"     # maximum liquid level in stabilizer
+threshold_min_B0102        = "-11.5"   # minimum pH value in stabilizer
+
+# evaporation
+threshold_min_B0201        = "-5"      # minimum liquid level in evaporator
+threshold_min_B0202        = "-11.5"   # minimum pH value in evaporator
+
+# concentrate discharge
+tau_M0203_interval         = "10"
+tau_M0203_runtime          = "2"
+tau_M0203_delay            = "2"
+
