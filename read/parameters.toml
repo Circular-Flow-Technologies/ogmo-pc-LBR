@@ -1,5 +1,5 @@
 machine_id                 = "NH-25-001"
-dataq_sampling_interval    = "5"
+dataq_sampling_interval    = "10"
 initial_wait_time          = "5"
 abort_flag                 = "False"
 
