@@ -1,6 +1,7 @@
-abort_flag                 = "False"
-tau_dataq                  = "60"
+machine_id                 = "NH-25-001"
+dataq_sampling_interval    = "5"
 initial_wait_time          = "5"
+abort_flag                 = "False"
 
 # collector tube
 tau_M0111_runtime          = "30"

@@ -19,6 +19,7 @@ def main():
     sensor_name_list = []
     for sensor in sensors:
         sensor_name_list.append(sensor.name)
+    print(sensor_name_list)
 
     actuators = load_actuators_from_toml(folder, file_name, pxt)
     actuator_name_list = []
@@ -32,7 +33,7 @@ def main():
 
     # Create threads for all parallel tasks
     threads = []
-    # threads.append(threading.Thread(target=routines_.data_acquisition, args=(sensors)))
+    threads.append(threading.Thread(target=routines_.data_acquisition, args=(sensors,)))
     threads.append(threading.Thread(target=routines_.stabilizer_stirrer, args=(actuators, actuator_name_list,)))
     threads.append(threading.Thread(target=routines_.evaporator_feed, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     # threads.append(threading.Thread(target=routines_.collector_flush, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))

@@ -1,8 +1,8 @@
 import threading
 import datetime
-import numpy as np
 import time
 import os
+import csv
 import tomllib
 
 from src.utils import get_file_path
@@ -16,57 +16,83 @@ class routines:
         """
         self.start_time = start_time
 
-        # initial wait time [s] (to avoid missing first cycles when intervall is rel. long. has to be longer than longest delay)
+        # access parameter file
         self.parameter_file_path = get_file_path(folder, parameter_file_name)
         pl = self.load_parameter_list()
+
+        # get machine_id and sampling interval for data acquisition
+        self.machine_id = pl.get("machine_id", "Unknown-ID")
+        self.sampling_interval = float(pl.get("dataq_sampling_interval", 60.0))
+
+        # get initial wait time [s] (to avoid missing first cycles when intervall is rel. long. has to be longer than longest delay)
         self.initial_wait_time = float(pl.get("initial_wait_time"))
 
-        # create shutdown event
+        # create shutdown event and file lock for threading 
         self.shutdown_event = threading.Event()  # Used to stop threads gracefully
+        self.file_lock = threading.Lock()
 
         # allocate for sensor measurement data
-        self.sensor_data = []
+        self.csv_file_path = None  # initialized on first loop
 
 
     # Data acquisition
     def data_acquisition(self, sensors):
+        current_date = None
 
         while not self.shutdown_event.is_set():
-            # Generate the current timestamp and runtime
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            global_runtime = time.time() - self.start_time
-            row = [timestamp, global_runtime]
-            
-            # Read sensor values
+            # Get current date and compare with the last used one
+            new_date = datetime.datetime.now().strftime("%Y-%m-%d")
+            if new_date != current_date:
+                current_date = new_date
+                file_name = f"{current_date}_{self.machine_id}_measurement_data.csv"
+                self.csv_file_path = get_file_path("data", file_name)
+
+                # Create file if it doesn't exist (no header needed)
+                if not os.path.exists(self.csv_file_path):
+                    open(self.csv_file_path, "a").close()  # create an empty file
+
+            # Start a thread per sensor reading
+            time_before_logging = time.time()
+            threads = []
             for sensor in sensors:
-                value = sensor.read_value()
-                row.append(value)
+                thread = threading.Thread(target=self._read_and_log_sensor, args=(sensor,))
+                thread.start()
+                threads.append(thread)
+
+            # Wait for all sensor read threads to complete before the next loop
+            for thread in threads:
+                thread.join()
             
-            # Append the new row to sensor data
-            self.sensor_data.append(row)
-            time.sleep(1)  # Simulate reading every 1 second
+            delta_time_logging = time.time() - time_before_logging
+            
+            if delta_time_logging < self.sampling_interval:
+                time.sleep(self.sampling_interval-delta_time_logging)
+            else:
+                print("\nWARNING: sampling interval for data acquisition is shorter than required time for reading sensor data (communication with hardware)")
+                
+        print(f"\nData logging stopped. Saved file: {self.csv_file_path}")
 
-        # Get the current date for the file name
-        current_date = datetime.datetime.now().strftime("%Y-%m-%d")
+    def _read_and_log_sensor(self, sensor):
+        # Prepare row data
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        global_runtime = time.time() - self.start_time
+        value = sensor.read_value()
 
-        # get the path to the data directory for storage
-        file_name = f"{current_date}_FuMu-DS_sensor_data.npy"
-        file_path = get_file_path("data", file_name)
+        row = [
+            timestamp,
+            f"{global_runtime:.2f}",
+            self.machine_id,
+            sensor.name,
+            sensor.type,
+            sensor.state,
+            sensor.value
+        ]
 
-        # Check if the file exists
-        if os.path.exists(file_path):
-            # If the file exists, load existing data
-            existing_data = np.load(file_path, allow_pickle=True).tolist()
-            # Merge new data with existing data
-            existing_data.extend(self.sensor_data)
-            # Save the merged data back to the file
-            np.save(file_path, np.array(existing_data))
-        else:
-            # If the file doesn't exist, save the new data to the file
-            np.save(file_path, np.array(self.sensor_data))
-        
-        print(f"Data saved to {file_path}")
-
+        # Safely write to file
+        with self.file_lock:
+            with open(self.csv_file_path, mode="a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(row)
 
     # cyclic routine: evaporator feed
     def evaporator_feed(self, actuators, sensors, actuator_name_list, sensor_name_list):
@@ -346,6 +372,7 @@ class routines:
         del pxt
         pxt = None
         print("\nPiXtend instance closed and deleted")
+        print("Wait while storring measurement data...")
 
     # Function to load process control parameters from the TOML file
     def load_parameter_list(self):
