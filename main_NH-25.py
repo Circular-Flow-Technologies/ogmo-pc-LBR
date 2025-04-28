@@ -40,7 +40,8 @@ def main():
     threads.append(threading.Thread(target=routines_.collector_drain, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.evaporation, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.concentrate_discharge, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
-    threads.append(threading.Thread(target=routines_.observer, args=(sensors, sensor_name_list)))
+    threads.append(threading.Thread(target=routines_.observer, args=(sensors, sensor_name_list,)))
+    threads.append(threading.Thread(target=routines_.print_to_prompt, args=(sensors, sensor_name_list,)))
 
     # Start threads
     for thread in threads:

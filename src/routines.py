@@ -152,13 +152,13 @@ class routines:
 
                 if sen_B0101.value > threshold_min_B0101:
                     # Turn actuator on
-                    print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
+                    # print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
                     act_M0102.set_state(True)
 
                     time.sleep(tau_M0102_runtime)  # Wait for the specified runtime
                     
                     # Turn actuator off
-                    print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
+                    # print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
                     act_M0102.set_state(False)
 
             time.sleep(0.1)
@@ -182,13 +182,13 @@ class routines:
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
             if int(current_runtime - tau_M0101_delay) % int(tau_M0101_interval) == 0:
                 # Turn actuator on
-                print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
+                # print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
                 act_M0101.set_state(True)
 
                 time.sleep(tau_M0101_runtime)  # Wait for the specified runtime
                 
                 # Turn actuator off
-                print(f"[Pump Control] Deactivating stabilizer stirrer at runtime: {current_runtime + tau_M0101_runtime:.2f}s")
+                # print(f"[Pump Control] Deactivating stabilizer stirrer at runtime: {current_runtime + tau_M0101_runtime:.2f}s")
                 act_M0101.set_state(False)
 
             time.sleep(0.1)
@@ -333,13 +333,13 @@ class routines:
                 # only discharge when evaporator tank liquid level is not below minimum
                 if sen_B0401.state == False and sen_B0201.value > threshold_min_B0201:
                     # Turn actuator on
-                    print(f"[Pump Control] Activating sludge pump at runtime: {current_runtime:.2f}s")
+                    # print(f"[Pump Control] Activating sludge pump at runtime: {current_runtime:.2f}s")
                     act_M0203.set_state(True)
 
                     time.sleep(tau_M0203_runtime)  # Wait for the specified runtime
                     
                     # Turn actuator off
-                    print(f"[Pump Control] Deactivating sludge pump at runtime: {current_runtime + tau_M0203_runtime:.2f}s")
+                    # print(f"[Pump Control] Deactivating sludge pump at runtime: {current_runtime + tau_M0203_runtime:.2f}s")
                     act_M0203.set_state(False)
 
             time.sleep(0.1)
@@ -365,7 +365,7 @@ class routines:
             sen_B0202 = sensors[sensor_name_list.index("B0202")]
             sen_B0401 = sensors[sensor_name_list.index("B0401")]
 
-            time.sleep(3)
+            time.sleep(10)
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
 
             if sen_B0102.value < threshold_min_B0102:
@@ -391,6 +391,30 @@ class routines:
             if sen_B0201.value < threshold_min_B0201:
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen_B0201.value}) in evaporator at minimum ({threshold_min_B0201}). Evaporation and concentrate discharge disabled!")
+
+
+    def print_to_prompt(self, sensors, sensor_namel_list):
+            
+        while not self.shutdown_event.is_set():
+            
+            # read up-to-date parameter list (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+
+            current_runtime = time.time() - (self.start_time + self.initial_wait_time)
+            for sensor, name in zip(sensors, sensor_namel_list):
+
+                # check if there is a corresponding flag in the parameter list
+                flag_name = "print_"+name
+                if flag_name in pl:
+
+                    # get the state of the flag for printing / not printing
+                    flag = pl.get(flag_name)
+                    if flag == "True":
+                        print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
+                else:
+                    print(f"No flag for printing / not printing of sensor {name} in parameter file.")
+            
+            time.sleep(2)
 
 
     

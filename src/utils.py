@@ -1,4 +1,5 @@
 import tomllib
+import numpy as np
 
 from pathlib import Path
 from src.AtlasI2C_orig import AtlasI2C
@@ -14,6 +15,7 @@ class Sensor:
         self.com_prot   = sensor_meta_data["com_prot"]
         self.address    = sensor_meta_data["address"]
         self.value      = 0.0
+        self.quad_gain  = float(sensor_meta_data["quad_gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.gain       = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.offset     = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.state      = True 
@@ -97,7 +99,7 @@ class Sensor:
 
 
 
-    def calibrate(self):
+    def calibrate(self, target_ID = 0):
         """
         Perform sensor type-dependent calibration routine.
         """
@@ -172,22 +174,67 @@ class Sensor:
                     self.offset = 0
                 else:
                     return
+            if target_ID == 1: # current measurement (0-10V)
+                print(f"Calibrating current sensor (PiXtend analog input inteface), name '{self.name}'.")
                 
-            print(f"Calibrating ultrasonic sensor for tank volume measurement (PiXtend analog input inteface), name '{self.name}'.")
+                # signal conversion directly from sensor datasheet (Seneca T201DCH)
+                self.gain   = 5.0
+                self.offset = 0.0
 
-            V_low  = float(input("Fill in the initial amount of water such that the senor is 150 - 300 mm above liquid surface, and enter the volume of the inital amount of Water (in L): "))
-            U_low  = self.read_value()
-            dV     = float(input("Add an additional amount of water such that the liquid surface rises to a level 50 - 150 mm below the sensor, and enter the volume of the ADDED amount of water (in L): "))
-            U_high = self.read_value()
+                self.calibrated = True
+                print(f"Calibration successfully terminated.")
+                print(f"Enter 'gain' = {self.gain} and 'offset' {self.offset} for sensor '{self.name}' in 'io_list.toml'.")
 
-            self.gain   = -(dV)/(U_low - U_high)
-            self.offset = V_low + dV - self.gain*U_high
+                return
 
-            self.calibrated = True
-            print(f"Calibration successfully terminated.")
-            print(f"Enter 'gain' = {self.gain} and 'offset' {self.offset} for Sensor '{self.name}' in 'io_list.toml'.")
+            elif target_ID == 2: # liquid level measurement with ultrasonic sensor (0-10V, linear function)
 
-            return 
+                print(f"Calibrating ultrasonic sensor for tank volume measurement (PiXtend analog input inteface), name '{self.name}'.")
+
+                V_low  = float(input("Fill in the initial amount of water such that the senor is 150 - 300 mm above liquid surface, and enter the volume of the inital amount of Water (in L): "))
+                U_low  = self.read_value()
+                dV     = float(input("Add an additional amount of water such that the liquid surface rises to a level 50 - 150 mm below the sensor, and enter the volume of the ADDED amount of water (in L): "))
+                U_high = self.read_value()
+
+                self.gain   = -(dV)/(U_low - U_high)
+                self.offset = V_low + dV - self.gain*U_high
+
+                self.calibrated = True
+                print(f"Calibration successfully terminated.")
+                print(f"Enter 'gain' = {self.gain} and 'offset' {self.offset} for sensor '{self.name}' in 'io_list.toml'.")
+
+                return
+            
+            elif target_ID == 3: # liquid level measurement with ultrasonic sensor (0-10V, quadratic function)
+
+                print(f"Calibrating ultrasonic sensor for tank volume measurement (PiXtend analog input inteface), name '{self.name}'.")
+
+                V_low  = float(input("Fill in the initial amount of water such that the senor is 200 - 300 mm above liquid surface, and enter the volume of the inital amount of Water (in L): "))
+                U_low  = self.read_value()
+                dV_mid     = float(input("Add an additional amount of water such that the liquid surface rises to a level 100 - 200 mm below the sensor, and enter the volume of the ADDED amount of water (in L): "))
+                U_mid = self.read_value()
+                dV_high     = float(input("Add an additional amount of water such that the liquid surface rises to a level 30 - 100 mm below the sensor, and enter the volume of the ADDED amount of water (in L): "))
+                U_high = self.read_value()
+
+                x = np.array([U_low, U_mid, U_high])
+                y = np.array([V_low, V_low+dV_mid, V_low+dV_mid+dV_high])
+
+                # solve linear system for coefficients
+                A = np.vstack([x**2, x, np.ones_like(x)]).T
+                a, b, c = np.linalg.solve(A, y)
+
+                self.quad_gain = a
+                self.gain      = b
+                self.offset    = c
+
+                self.calibrated = True
+                print(f"Calibration successfully terminated.")
+                print(f"Enter 'gain' = {self.gain} and 'offset' {self.offset} for sensor '{self.name}' in 'io_list.toml'.")
+
+                return
+            
+            else:
+                print(f"Calibration for {self.type} and target quantity with ID ({target_ID}) not implemented.")
         
         else:
             print(f"No calibration routine available for sensor type '{self.type}'.")
@@ -218,22 +265,28 @@ class Sensor:
                     self.value = val
             elif "PX" in self.type:
                 if self.address == "analog_in0":
-                    self.value = self.pxt.analog_in0*self.gain + self.offset
+                    read_value = self.pxt.analog_in0
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "analog_in1":
-                    self.value = self.pxt.analog_in1*self.gain + self.offset
+                    read_value = self.pxt.analog_in1
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "analog_in2":
-                    self.value = self.pxt.analog_in2*self.gain + self.offset
+                    read_value = self.pxt.analog_in2
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "analog_in3":
-                    self.value = self.pxt.analog_in3*self.gain + self.offset
+                    read_value = self.pxt.analog_in3
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "analog_in4":
-                    self.value = self.pxt.analog_in4*self.gain + self.offset
+                    read_value = self.pxt.analog_in4
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "analog_in5":
-                    self.value = self.pxt.analog_in5*self.gain + self.offset
+                    read_value = self.pxt.analog_in5
+                    self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "digital_in0":
                     self.state = bool(self.pxt.digital_in0)
