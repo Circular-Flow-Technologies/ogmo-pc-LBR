@@ -2,7 +2,7 @@ import threading
 import datetime
 import time
 
-from pixtendv2s import PiXtendV2S
+from pixtendv2l import PiXtendV2s
 from src.fumu_utils import load_sensors_from_toml
 
 # Global runtime tracking
