@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
+from shared_state import sensors, actuators
 import subprocess
 import threading
 import os
