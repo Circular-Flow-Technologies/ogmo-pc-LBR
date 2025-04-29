@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Process Control GUI</title>
+</head>
+<body>
+    <h1>Process Control Panel</h1>
+
+    <form method="POST">
+        <button type="submit" name="start" {% if is_running %}disabled{% endif %}>Start</button>
+        <button type="submit" name="stop" {% if not is_running %}disabled{% endif %}>Stop</button>
+        <button type="submit" name="calibrate" {% if is_running %}disabled{% endif %}>Calibrate Sensor</button>
+
+        <h2>Routines</h2>
+        {% for routine in routines %}
+            <label>
+                <input type="checkbox" name="{{ routine }}" {% if routine in active_routines %}checked{% endif %}>
+                {{ routine }}
+            </label><br>
+        {% endfor %}
+
+        <br><input type="submit" value="Update Routines">
+    </form>
+
+    <h2>Sensor Values</h2>
+    <ul>
+        {% for name, value in sensors.items() %}
+            <li>{{ name }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Actuator States</h2>
+    <ul>
+        {% for name, value in actuators.items() %}
+            <li>{{ name }}: {{ value }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Prompt Log</h2>
+    <div style="background:#eee; padding:10px; max-height:200px; overflow-y:auto;">
+        {% for msg in prompt_messages %}
+            <div>{{ msg }}</div>
+        {% endfor %}
+    </div>
+</body>
+</html>

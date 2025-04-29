@@ -4,6 +4,7 @@ import time
 from pixtendv2l import PiXtendV2L
 from src.utils import load_sensors_from_toml, load_actuators_from_toml
 from src.routines import routines
+from webgui import shared_state
 
 
 def main():
@@ -25,6 +26,13 @@ def main():
     actuator_name_list = []
     for actuator in actuators:
         actuator_name_list.append(actuator.name)
+
+    # pass sensors and actuators instances to shared_state for accessing in flask app (for GUI)
+    shared_state.sensors = sensors
+    shared_state.actuators = actuators
+
+    shared_state.sensor_map = {s.name: s for s in sensors}
+    shared_state.actuator_map = {a.name: a for a in actuators}
 
     # Initialize routines
     start_time = time.time()
