@@ -152,13 +152,13 @@ class routines:
 
                 if sen_B0101.value > threshold_min_B0101:
                     # Turn actuator on
-                    # print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
+                    print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
                     act_M0102.set_state(True)
 
                     time.sleep(tau_M0102_runtime)  # Wait for the specified runtime
                     
                     # Turn actuator off
-                    # print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
+                    print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
                     act_M0102.set_state(False)
 
             time.sleep(0.1)
@@ -393,7 +393,7 @@ class routines:
                 print(f"Liquid level ({sen_B0201.value}) in evaporator at minimum ({threshold_min_B0201}). Evaporation and concentrate discharge disabled!")
 
 
-    def print_to_prompt(self, sensors, sensor_namel_list):
+    def print_sensor_values_to_prompt(self, sensors, sensor_namel_list):
             
         while not self.shutdown_event.is_set():
             
