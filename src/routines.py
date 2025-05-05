@@ -34,6 +34,13 @@ class routines:
         # allocate for sensor measurement data
         self.csv_file_path = None  # initialized on first loop
 
+        # event counter (number of inflow events since programm start)
+        self.nbr_events = 0
+
+        # last event inflow and cumulative inflow volume since program start
+        self.last_event_inflow = 0
+        self.cumulative_inflow = 0
+
 
     # Data acquisition
     def data_acquisition(self, sensors, actuators):
@@ -63,6 +70,10 @@ class routines:
                 thread = threading.Thread(target=self._read_and_log_actuator, args=(actuator,))
                 thread.start()
                 threads.append(thread)
+
+            thread = threading.Thread(target=self._read_and_log_event)
+            thread.start()
+            threads.append(thread)
 
             # Wait for all sensor read threads to complete before the next loop
             for thread in threads:
@@ -119,6 +130,30 @@ class routines:
             actuator.address,
             actuator.state,
             value
+        ]
+
+        # Safely write to file
+        with self.file_lock:
+            with open(self.csv_file_path, mode="a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(row)
+
+    def _read_and_log_event(self):
+        # Prepare row data
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        global_runtime = time.time() - self.start_time
+        io_type = "Event"
+
+        row = [
+            timestamp,
+            f"{global_runtime:.2f}",
+            self.machine_id,
+            io_type,
+            self.nbr_events,
+            self.last_event_inflow,
+            self.cumulative_inflow,
+            0,
+            0
         ]
 
         # Safely write to file
@@ -209,18 +244,14 @@ class routines:
             act_M0111 = actuators[actuator_name_list.index("M0111")]
             sen_B0111 = sensors[sensor_name_list.index("B0111")]
 
-            if sen_B0111.value > threshold_min_B0111:
-
-                print("\n[[GUI]]")
-                print("Inflow detected.")
-
-                # ----- TO BE IMPLEMENTED -----
-                # Increment event counter
-                # Increment cumulative inflow volume
-                # -----------------------------
+            if sen_B0111.read_value() > threshold_min_B0111:
 
                 # Wait for the specified pre-delay
                 time.sleep(tau_M0111_delay)
+
+                # get inflow volume from collector tube sensor and update inflow event data
+                self.last_event_inflow = sen_B0111.read_value()
+                self.update_inflow_data(self.last_event_inflow)
 
                 current_runtime = time.time() - (self.start_time + self.initial_wait_time)
                 # Turn actuator on
@@ -357,12 +388,14 @@ class routines:
             threshold_min_B0102 = float(pl.get("threshold_min_B0102"))
             threshold_min_B0202 = float(pl.get("threshold_min_B0202"))
             threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
+            threshold_min_B0111 = float(pl.get("threshold_min_B0111"))
 
             # get instance of required S&A
             sen_B0101 = sensors[sensor_name_list.index("B0101")]
             sen_B0102 = sensors[sensor_name_list.index("B0102")]
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
             sen_B0202 = sensors[sensor_name_list.index("B0202")]
+            sen_B0111 = sensors[sensor_name_list.index("B0111")]
             sen_B0401 = sensors[sensor_name_list.index("B0401")]
 
             time.sleep(10)
@@ -383,6 +416,10 @@ class routines:
             if sen_B0101.value > threshold_max_B0101:
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen_B0101.value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
+
+            if sen_B0111.value > threshold_min_B0111:
+                print("\n[[GUI]]")
+                print(f"Inflow detected: Event counter at [{self.nbr_events}]")
 
             if sen_B0401.state == True:
                 print("\n[[GUI]]")
@@ -453,3 +490,8 @@ class routines:
         with open(self.parameter_file_path, "rb") as f:
             parameter_list = tomllib.load(f)
         return parameter_list
+
+    def update_inflow_data(self, inflow_volume):
+
+        self.nbr_events += 1
+        self.cumulative_inflow += inflow_volume
