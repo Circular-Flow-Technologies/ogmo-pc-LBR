@@ -100,6 +100,17 @@ calibrated = ""
 # calibrated = ""
 
 # [[sensor]]
+# name = "B0302"
+# descr = "Temperature upstream evaporator"
+# type = "EZO-HUM-T"
+# com_prot = "I2C"
+# address = "110"
+# quad_gain = "0.0"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
+
+# [[sensor]]
 # name = "B0303"
 # descr = "Rel. humidity downstream evaporator"
 # type = "EZO-HUM-RH"
@@ -111,19 +122,8 @@ calibrated = ""
 # calibrated = ""
 
 # [[sensor]]
-# name = "B0302"
-# descr = "Rel. humidity upstream evaporator"
-# type = "EZO-HUM-T"
-# com_prot = "I2C"
-# address = "110"
-# quad_gain = "0.0"
-# gain = "1.0"
-# offset = "0.0"
-# calibrated = ""
-
-# [[sensor]]
 # name = "B0304"
-# descr = "Rel. humidity downstream evaporator"
+# descr = "Temperature downstream evaporator"
 # type = "EZO-HUM-T"
 # com_prot = "I2C"
 # address = "111"

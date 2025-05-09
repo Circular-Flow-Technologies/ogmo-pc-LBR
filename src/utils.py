@@ -68,7 +68,7 @@ class Sensor:
             elif self.type == "EZO-EC":
                 print(f"Configuring EZO-EC '{self.name}'.")
                 device = AtlasI2C(int(self.address))
-                res = device.query(',K,1.0') # set probe type
+                res = device.query('K,1.0') # set probe type
                 res = device.query('O,EC,1')  # set EC as output parameter
                 res = device.query('O,TDS,0') # disable TDS as output parameter
                 res = device.query('O,S,0')   # disable S as output parameter
@@ -251,18 +251,27 @@ class Sensor:
 
             if "EZO" in self.type:
                 device = AtlasI2C(int(self.address))
+                response = device.query('R')
+                read_quality = response.split('  ')[0]
+                # print(f'sensor type: {self.type}     read quality: {read_quality}')
 
-                if self.type == "EZO-HUM-RH":
-                    val = float(device.query('R').split(':')[1].split('\x00')[0].split(',')[0])
-                    self.value = val
+                if read_quality == "Success":
 
-                elif self.type == "EZO-HUM-T":
-                    val = float(device.query('R').split(':')[1].split('\x00')[0].split(',')[1])
-                    self.value = val
+                    if self.type == "EZO-HUM-RH":
+                        val = float(response.split(':')[1].split('\x00')[0].split(',')[0])
+                        self.value = val
 
+                    elif self.type == "EZO-HUM-T":
+                        val = float(response.split(':')[1].split('\x00')[0].split(',')[1])
+                        self.value = val
+
+                    else:
+                        val = float(response.split(':')[1].split('\x00')[0])
+                        self.value = val
                 else:
-                    val = float(device.query('R').split(':')[1].split('\x00')[0])
-                    self.value = val
+                    resp_code = response.split(':')[1].split('\x00')[0]
+                    print(f'{read_quality} during read of sensor {self.name} (type {self.type}). Response code {resp_code}. Sensor value not updated.')
+
             elif "PX" in self.type:
                 if self.address == "analog_in0":
                     read_value = self.pxt.analog_in0

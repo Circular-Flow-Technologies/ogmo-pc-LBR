@@ -61,17 +61,26 @@ class routines:
             # Start a thread per sensor / actuator reading
             time_before_logging = time.time()
             threads = []
+
+            # sensor read threads
             for sensor in sensors:
                 thread = threading.Thread(target=self._read_and_log_sensor, args=(sensor,))
                 thread.start()
                 threads.append(thread)
 
+            # actuator read threads
             for actuator in actuators:
                 thread = threading.Thread(target=self._read_and_log_actuator, args=(actuator,))
                 thread.start()
                 threads.append(thread)
 
+            # event thread
             thread = threading.Thread(target=self._read_and_log_event)
+            thread.start()
+            threads.append(thread)
+
+            # CPU temperature thread
+            thread = threading.Thread(target=self._read_and_log_CPU_temp)
             thread.start()
             threads.append(thread)
 
@@ -152,6 +161,29 @@ class routines:
             self.nbr_events,
             self.last_event_inflow,
             self.cumulative_inflow,
+            0,
+            0
+        ]
+
+    def _read_and_log_CPU_temp(self):
+        # Prepare row data
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        global_runtime = time.time() - self.start_time
+        io_type = "CPU"
+
+        temp_str = os.popen("vcgencmd measure_temp").readline()
+        temp_value = float(temp_str.replace("temp=", "").replace("'C\n", ""))
+
+        # print(f"CPU Temperature: {temp_value}°C")
+
+        row = [
+            timestamp,
+            f"{global_runtime:.2f}",
+            self.machine_id,
+            io_type,
+            temp_value,
+            0,
+            0,
             0,
             0
         ]
