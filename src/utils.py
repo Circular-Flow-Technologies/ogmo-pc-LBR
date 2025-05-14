@@ -9,18 +9,20 @@ class Sensor:
         """
         Constructor to initialize the sensor object from sensor data.
         """
-        self.name       = sensor_meta_data["name"]
-        self.descr      = sensor_meta_data["descr"]
-        self.type       = sensor_meta_data["type"]
-        self.com_prot   = sensor_meta_data["com_prot"]
-        self.address    = sensor_meta_data["address"]
-        self.value      = 0.0
-        self.quad_gain  = float(sensor_meta_data["quad_gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.gain       = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.offset     = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.state      = True 
-        self.connected  = False  # Default connection status
-        self.configured = False  # Default connection status
+        self.name        = sensor_meta_data["name"]
+        self.descr       = sensor_meta_data["descr"]
+        self.type        = sensor_meta_data["type"]
+        self.com_prot    = sensor_meta_data["com_prot"]
+        self.address     = sensor_meta_data["address"]
+        self.value       = 0.0
+        self.value_aux_1 = 0.0
+        self.value_aux_2 = 0.0
+        self.quad_gain   = float(sensor_meta_data["quad_gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.gain        = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.offset      = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
+        self.state       = True 
+        self.connected   = False  # Default connection status
+        self.configured  = False  # Default connection status
         
         # check whether sensor is calibrated with knonw data
         if sensor_meta_data["calibrated"] == "yes" or sensor_meta_data["calibrated"] == "Yes":
@@ -257,13 +259,11 @@ class Sensor:
 
                 if read_quality == "Success":
 
-                    if self.type == "EZO-HUM-RH":
-                        val = float(response.split(':')[1].split('\x00')[0].split(',')[0])
-                        self.value = val
-
-                    elif self.type == "EZO-HUM-T":
-                        val = float(response.split(':')[1].split('\x00')[0].split(',')[1])
-                        self.value = val
+                    if self.type == "EZO-HUM":
+                        val_1 = float(response.split(':')[1].split('\x00')[0].split(',')[0])
+                        val_2 = float(response.split(':')[1].split('\x00')[0].split(',')[1])
+                        self.value = val_1
+                        self.value_aux_1 = val_2
 
                     else:
                         val = float(response.split(':')[1].split('\x00')[0])

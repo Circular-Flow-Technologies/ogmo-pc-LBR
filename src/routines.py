@@ -113,7 +113,9 @@ class routines:
             sensor.name,
             sensor.address,
             sensor.state,
-            value
+            value,
+            sensor.value_aux_1,
+            sensor.value_aux_2
         ]
 
         # Safely write to file
@@ -127,7 +129,6 @@ class routines:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         global_runtime = time.time() - self.start_time
         io_type = "Actuator"
-        value = 0
 
         row = [
             timestamp,
@@ -138,7 +139,10 @@ class routines:
             actuator.name,
             actuator.address,
             actuator.state,
-            value
+            0,
+            0,
+            0,
+            0
         ]
 
         # Safely write to file
@@ -162,6 +166,8 @@ class routines:
             self.last_event_inflow,
             self.cumulative_inflow,
             0,
+            0,
+            0,
             0
         ]
 
@@ -182,6 +188,8 @@ class routines:
             self.machine_id,
             io_type,
             temp_value,
+            0,
+            0,
             0,
             0,
             0,
@@ -479,7 +487,10 @@ class routines:
                     # get the state of the flag for printing / not printing
                     flag = pl.get(flag_name)
                     if flag == "True":
-                        print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
+                        if sensor.type == "EZO-HUM":
+                            print(f"Sensor '{name}' reads: {sensor.value} / {sensor.value_aux_1} at runtime {current_runtime} [s]")
+                        else:
+                            print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
                 else:
                     print(f"No flag for printing / not printing of sensor {name} in parameter file.")
             

@@ -6,8 +6,8 @@ from webgui import shared_state
 
 # Redirect stdout globally
 # Warning: This is global. All print() output from any thread is redirected.
-sys.stdout = shared_state.PromptLogger()
-sys.stderr = shared_state.PromptLogger()
+# sys.stdout = shared_state.PromptLogger()
+# sys.stderr = shared_state.PromptLogger()
 
 from src.utils import load_sensors_from_toml, load_actuators_from_toml
 from src.routines import routines
