@@ -11,7 +11,7 @@ import string
 class AtlasI2C:
 
     # the timeout needed to query readings and calibrations
-    LONG_TIMEOUT = 1.5
+    LONG_TIMEOUT = 1.7
     # timeout for regular commands
     SHORT_TIMEOUT = .3
     # the default bus for I2C on the newer Raspberry Pis, 

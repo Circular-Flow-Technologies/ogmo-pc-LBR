@@ -34,13 +34,22 @@ tau_M0203_delay            = "0"
 
 # sensor print to prompt
 print_B0001                = "False"
+print_EMRGY                = "False"
 print_B0101                = "False"
 print_B0102                = "False"
 print_B0103                = "False"
+print_BM101                = "False"
 print_B0111                = "False"
 print_B0201                = "False"
 print_B0202                = "False"
 print_B0203                = "False"
-print_B0301                = "True"
+print_BM201                = "True"
+print_BM202                = "False"
+print_B0301                = "False"
 print_B0303                = "False"
 print_B0401                = "False"
+
+# relaunch after over-current
+relaunch_M0101             = "False"
+relaunch_M0201             = "False"
+relaunch_M0202             = "False"

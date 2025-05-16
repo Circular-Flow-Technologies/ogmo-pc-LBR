@@ -12,6 +12,17 @@ offset = "0.0"
 calibrated = "True"
 
 [[sensor]]
+name = "EMRGY"
+descr = "emergency stop button"
+type = "PX-DI"
+com_prot = "SPI"
+address = "digital_in4"
+quad_gain = "0.0"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
 name = "B0101"
 descr = "Level sensor stabilizer tank"
 type = "PX-AI"
@@ -56,6 +67,17 @@ offset = "0.0"
 calibrated = ""
 
 [[sensor]]
+name = "BM101"
+descr = "over-current M0101 (stabilizer stirrer)"
+type = "PX-DI"
+com_prot = "SPI"
+address = "digital_in6"
+quad_gain = "0.0"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
 name = "B0201"
 descr = "Level sensor evaporator"
 type = "PX-AI"
@@ -89,6 +111,28 @@ offset = "0.0"
 calibrated = ""
 
 [[sensor]]
+name = "BM201"
+descr = "over-current M0201 (evaporator disc motor)"
+type = "PX-DI"
+com_prot = "SPI"
+address = "digital_in7"
+quad_gain = "0.0"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
+name = "BM202"
+descr = "over-current M0201 (evaporator screw motor)"
+type = "PX-DI"
+com_prot = "SPI"
+address = "digital_in8"
+quad_gain = "0.0"
+gain = "1.0"
+offset = "0.0"
+calibrated = ""
+
+[[sensor]]
 name = "B0301"
 descr = "Rel. humidity upstream evaporator"
 type = "EZO-HUM"
@@ -113,7 +157,7 @@ calibrated = ""
 [[sensor]]
 name = "B0401"
 descr = "Level switch stabilizer tank"
-type = "PX-AI"
+type = "PX-DI"
 com_prot = "SPI"
 address = "digital_in0"
 quad_gain = "0.0"

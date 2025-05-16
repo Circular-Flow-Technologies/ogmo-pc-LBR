@@ -20,7 +20,7 @@ class Sensor:
         self.quad_gain   = float(sensor_meta_data["quad_gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.gain        = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.offset      = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.state       = True 
+        self.state       = False 
         self.connected   = False  # Default connection status
         self.configured  = False  # Default connection status
         

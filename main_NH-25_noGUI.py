@@ -42,7 +42,7 @@ def main():
     # Create threads for all parallel tasks
     threads = []
     threads.append(threading.Thread(target=routines_.data_acquisition, args=(sensors, actuators,)))
-    threads.append(threading.Thread(target=routines_.stabilizer_stirrer, args=(actuators, actuator_name_list,)))
+    threads.append(threading.Thread(target=routines_.stabilizer_stirrer, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.evaporator_feed, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.collector_flush, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.collector_drain, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))

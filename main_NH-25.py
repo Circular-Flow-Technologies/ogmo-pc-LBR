@@ -56,7 +56,7 @@ def main():
                     threads.append(threading.Thread(target=target, args=args))
 
             maybe_add("data_acquisition", routines_.data_acquisition, (sensors, actuators))
-            maybe_add("stabilizer_stirrer", routines_.stabilizer_stirrer, (actuators, actuator_name_list))
+            maybe_add("stabilizer_stirrer", routines_.stabilizer_stirrer, (actuators, sensors, actuator_name_list, sensor_name_list))
             maybe_add("evaporator_feed", routines_.evaporator_feed, (actuators, sensors, actuator_name_list, sensor_name_list))
             maybe_add("collector_flush", routines_.collector_flush, (actuators, sensors, actuator_name_list, sensor_name_list))
             maybe_add("collector_drain", routines_.collector_drain, (actuators, sensors, actuator_name_list, sensor_name_list))

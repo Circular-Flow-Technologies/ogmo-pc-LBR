@@ -66,6 +66,7 @@ class routines:
             for sensor in sensors:
                 thread = threading.Thread(target=self._read_and_log_sensor, args=(sensor,))
                 thread.start()
+                time.sleep(0.2)
                 threads.append(thread)
 
             # actuator read threads
@@ -227,20 +228,20 @@ class routines:
 
                 if sen_B0101.value > threshold_min_B0101:
                     # Turn actuator on
-                    print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
+                    # print(f"[Pump Control] Activating evaporator feed pump at runtime: {current_runtime:.2f}s")
                     act_M0102.set_state(True)
 
                     time.sleep(tau_M0102_runtime)  # Wait for the specified runtime
                     
                     # Turn actuator off
-                    print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
+                    # print(f"[Pump Control] Deactivating evaporator feed pump at runtime: {current_runtime + tau_M0102_runtime:.2f}s")
                     act_M0102.set_state(False)
 
             time.sleep(0.1)
 
 
     # cyclic routine: stabilizer stirrer 
-    def stabilizer_stirrer(self, actuators, actuator_name_list):
+    def stabilizer_stirrer(self, actuators, sensors, actuator_name_list, sensor_name_list):
 
         while not self.shutdown_event.is_set():
             pl_DS = self.load_parameter_list()
@@ -253,12 +254,21 @@ class routines:
 
             # get instance of required S&A
             act_M0101 = actuators[actuator_name_list.index("M0101")]
+            sen_BM101 = sensors[sensor_name_list.index("BM101")]
         
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
             if int(current_runtime - tau_M0101_delay) % int(tau_M0101_interval) == 0:
                 # Turn actuator on
                 # print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
-                act_M0101.set_state(True)
+                
+                # Turn actuators ON (depending on over-current management settings)
+                if sen_BM101.state == False:
+                    act_M0101.set_state(True) # disc motor
+                else:
+                    time.sleep(2) # give observer some time to detect
+                    act_M0101.st_state(False)
+                    self.relaunch_motor(act_M0101) # relaunch depends on flag in parameters file
+
 
                 time.sleep(tau_M0101_runtime)  # Wait for the specified runtime
                 
@@ -359,14 +369,28 @@ class routines:
             act_M0202 = actuators[actuator_name_list.index("M0202")]
             act_M0301 = actuators[actuator_name_list.index("M0301")]
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
+            sen_BM201 = sensors[sensor_name_list.index("BM201")]
+            sen_BM202 = sensors[sensor_name_list.index("BM202")]
 
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
             if sen_B0201.value > threshold_min_B0201:
                 # print(f"[Control] Evaporation process running at runtime: {current_runtime:.2f}s")
 
-                # Turn actuators ON
-                act_M0201.set_state(True) # disc motor
-                act_M0202.set_state(True) # fans
+                # Turn actuators ON (depending on over-current management settings)
+                if sen_BM201.state == False:
+                    act_M0201.set_state(True) # disc motor
+                else:
+                    time.sleep(2) # give observer some time to detect
+                    act_M0201.st_state(False)
+                    self.relaunch_motor(act_M0201) # relaunch depends on flag in parameters file
+
+                if sen_BM202.state == False:
+                    act_M0202.set_state(True) # screw motor
+                else:
+                    time.sleep(2) # give observer some time to detect
+                    act_M0202.st_state(False)
+                    self.relaunch_motor(act_M0202) # relaunch depends on flag in parameters file
+                
                 act_M0301.set_state(True) # dehumidifier
 
             else:
@@ -377,6 +401,13 @@ class routines:
                 act_M0301.set_state(False) # dehumidifier
 
             time.sleep(1)
+
+    def relaunch_motor(self, actuator):
+        pl = self.load_parameter_list()
+        relaunch_flag = str(pl.get(f"relaunch_{self.name}"))
+
+        if relaunch_flag == True:
+            actuator.set_state(True)
 
 
     # cyclic routine: concentrate discharge
@@ -437,6 +468,9 @@ class routines:
             sen_B0202 = sensors[sensor_name_list.index("B0202")]
             sen_B0111 = sensors[sensor_name_list.index("B0111")]
             sen_B0401 = sensors[sensor_name_list.index("B0401")]
+            sen_BM101 = sensors[sensor_name_list.index("BM101")]
+            sen_BM201 = sensors[sensor_name_list.index("BM201")]
+            sen_BM202 = sensors[sensor_name_list.index("BM202")]
 
             time.sleep(10)
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
@@ -463,11 +497,23 @@ class routines:
 
             if sen_B0401.state == True:
                 print("\n[[GUI]]")
-                print("Concentrate tank is full")
+                print("DETECTION: Concentrate tank is full")
 
             if sen_B0201.value < threshold_min_B0201:
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen_B0201.value}) in evaporator at minimum ({threshold_min_B0201}). Evaporation and concentrate discharge disabled!")
+
+            if sen_BM101.state == True:
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen_BM101.descr}")
+
+            if sen_BM201.state == True:
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen_BM201.descr}")
+
+            if sen_BM202.state == True:
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen_BM202.descr}")
 
 
     def print_sensor_values_to_prompt(self, sensors, sensor_namel_list):
