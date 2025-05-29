@@ -555,7 +555,7 @@ class routines:
                 self.add_log_file_entry("CaOH2_refill", CaOH2_refill)
                 input("Change 'CaOH2_refill' to 'False' in parameters.toml and save file. (Press any key when done)")
                 print("\n*********** End Ca(OH)2 refill procedure *********")
-                continue
+                
 
 
     def print_sensor_values_to_prompt(self, sensors, sensor_namel_list):
