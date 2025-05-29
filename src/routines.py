@@ -319,7 +319,7 @@ class routines:
                 act_M0111.set_state(False)
 
 
-            time.sleep(10)
+            time.sleep(1)
 
 
     # triggered routine: collector flush
@@ -355,7 +355,7 @@ class routines:
                 act_M0112.set_state(False)
 
 
-            time.sleep(10)
+            time.sleep(1)
 
 
     # running routine: evaporation
@@ -517,6 +517,8 @@ class routines:
             if sen_BM202.state == True:
                 print("\n[[GUI]]")
                 print(f"DETECTION: {sen_BM202.descr}")
+            
+            time.sleep(0.1)
 
 
     # Ca(OH)2 refill procedure
@@ -555,7 +557,8 @@ class routines:
                 self.add_log_file_entry("CaOH2_refill", CaOH2_refill)
                 input("Change 'CaOH2_refill' to 'False' in parameters.toml and save file. (Press any key when done)")
                 print("\n*********** End Ca(OH)2 refill procedure *********")
-                
+
+            time.sleep(0.1)
 
 
     def print_sensor_values_to_prompt(self, sensors, sensor_namel_list):
