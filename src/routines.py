@@ -4,12 +4,13 @@ import time
 import os
 import csv
 import tomllib
+import numpy as np
 
 from src.utils import get_file_path
  
 
 class routines:
-    def __init__(self, start_time, folder, parameter_file_name):
+    def __init__(self, start_time, parameter_file_name, log_file_name):
 
         """
         Constructor to initialize the sensor object from sensor data.
@@ -17,8 +18,11 @@ class routines:
         self.start_time = start_time
 
         # access parameter file
-        self.parameter_file_path = get_file_path(folder, parameter_file_name)
+        self.parameter_file_path = get_file_path("read", parameter_file_name)
         pl = self.load_parameter_list()
+
+        # load log-file
+        self.log_file_path = get_file_path("data", log_file_name)
 
         # get machine_id and sampling interval for data acquisition
         self.machine_id = pl.get("machine_id", "Unknown-ID")
@@ -35,11 +39,11 @@ class routines:
         self.csv_file_path = None  # initialized on first loop
 
         # event counter (number of inflow events since programm start)
-        self.nbr_events = 0
+        self.event_nbr = 0
 
         # last event inflow and cumulative inflow volume since program start
-        self.last_event_inflow = 0
-        self.cumulative_inflow = 0
+        self.last_event_inflow = self.read_latest_from_log_file('event_number')
+        self.cumulative_inflow = self.read_latest_from_log_file('cumulative_inflow')
 
 
     # Data acquisition
@@ -163,7 +167,7 @@ class routines:
             f"{global_runtime:.2f}",
             self.machine_id,
             io_type,
-            self.nbr_events,
+            self.event_nbr,
             self.last_event_inflow,
             self.cumulative_inflow,
             0,
@@ -180,8 +184,6 @@ class routines:
 
         temp_str = os.popen("vcgencmd measure_temp").readline()
         temp_value = float(temp_str.replace("temp=", "").replace("'C\n", ""))
-
-        # print(f"CPU Temperature: {temp_value}°C")
 
         row = [
             timestamp,
@@ -244,10 +246,11 @@ class routines:
     def stabilizer_stirrer(self, actuators, sensors, actuator_name_list, sensor_name_list):
 
         while not self.shutdown_event.is_set():
-            pl_DS = self.load_parameter_list()
-            tau_M0101_interval = float(pl_DS.get("tau_M0101_interval"))
-            tau_M0101_runtime  = float(pl_DS.get("tau_M0101_runtime"))
-            tau_M0101_delay  = float(pl_DS.get("tau_M0101_delay"))
+            pl = self.load_parameter_list()
+            tau_M0101_interval = float(pl.get("tau_M0101_interval"))
+            tau_M0101_runtime  = float(pl.get("tau_M0101_runtime"))
+            tau_M0101_delay  = float(pl.get("tau_M0101_delay"))
+            refill_flag = str(pl.get("CaOH2_refill"))
 
             if tau_M0101_interval-tau_M0101_runtime <=1:
                 print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
@@ -257,7 +260,7 @@ class routines:
             sen_BM101 = sensors[sensor_name_list.index("BM101")]
         
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
-            if int(current_runtime - tau_M0101_delay) % int(tau_M0101_interval) == 0:
+            if int(current_runtime - tau_M0101_delay) % int(tau_M0101_interval) == 0 and refill_flag == "False":
                 # Turn actuator on
                 # print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
                 
@@ -265,7 +268,7 @@ class routines:
                 if sen_BM101.state == False:
                     act_M0101.set_state(True) # disc motor
                 else:
-                    time.sleep(2) # give observer some time to detect
+                    time.sleep(12) # give observer some time to detect
                     act_M0101.st_state(False)
                     self.relaunch_motor(act_M0101) # relaunch depends on flag in parameters file
 
@@ -380,14 +383,14 @@ class routines:
                 if sen_BM201.state == False:
                     act_M0201.set_state(True) # disc motor
                 else:
-                    time.sleep(2) # give observer some time to detect
+                    time.sleep(12) # give observer some time to detect
                     act_M0201.st_state(False)
                     self.relaunch_motor(act_M0201) # relaunch depends on flag in parameters file
 
                 if sen_BM202.state == False:
                     act_M0202.set_state(True) # screw motor
                 else:
-                    time.sleep(2) # give observer some time to detect
+                    time.sleep(12) # give observer some time to detect
                     act_M0202.st_state(False)
                     self.relaunch_motor(act_M0202) # relaunch depends on flag in parameters file
                 
@@ -406,7 +409,7 @@ class routines:
         pl = self.load_parameter_list()
         relaunch_flag = str(pl.get(f"relaunch_{self.name}"))
 
-        if relaunch_flag == True:
+        if relaunch_flag == "True":
             actuator.set_state(True)
 
 
@@ -414,11 +417,11 @@ class routines:
     def concentrate_discharge(self, actuators, sensors, actuator_name_list, sensor_name_list):
 
         while not self.shutdown_event.is_set():
-            pl_DS = self.load_parameter_list()
-            tau_M0203_interval  = float(pl_DS.get("tau_M0203_interval"))
-            tau_M0203_runtime   = float(pl_DS.get("tau_M0203_runtime"))
-            tau_M0203_delay     = float(pl_DS.get("tau_M0203_delay"))
-            threshold_min_B0201 = float(pl_DS.get("threshold_min_B0201"))
+            pl = self.load_parameter_list()
+            tau_M0203_interval  = float(pl.get("tau_M0203_interval"))
+            tau_M0203_runtime   = float(pl.get("tau_M0203_runtime"))
+            tau_M0203_delay     = float(pl.get("tau_M0203_delay"))
+            threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
 
             if tau_M0203_interval-tau_M0203_runtime <=1:
                 print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
@@ -493,7 +496,7 @@ class routines:
 
             if sen_B0111.value > threshold_min_B0111:
                 print("\n[[GUI]]")
-                print(f"Inflow detected: Event counter at [{self.nbr_events}]")
+                print(f"Inflow detected: Event counter at [{self.event_nbr}]")
 
             if sen_B0401.state == True:
                 print("\n[[GUI]]")
@@ -514,6 +517,45 @@ class routines:
             if sen_BM202.state == True:
                 print("\n[[GUI]]")
                 print(f"DETECTION: {sen_BM202.descr}")
+
+
+    # Ca(OH)2 refill procedure
+    def CaOH2_refill(self, actuators, actuator_name_list):
+        
+        while not self.shutdown_event.is_set():
+
+            # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
+            pl = self.load_parameter_list()
+            CaOH2_dosing = float(pl.get("CaOH2_dosing"))
+            flag = str(pl.get("CaOH2_refill"))
+
+            # get instance of required S&A
+            act_M0101 = actuators[actuator_name_list.index("M0101")]
+
+            if flag == "True":
+                last_CaOH2_refill = self.read_latest_from_log_file('CaOH2_refill')
+                cumulative_inflow_last_CaOH2_added = self.read_latest_from_log_file('cumulative_inflow_last_CaOH2_refill')
+
+                # cumulative inflow since last refill
+                ci_diff = self.cumulative_inflow - cumulative_inflow_last_CaOH2_added
+
+                # calculate remaining buffer capacity (based on CaOH2 dosing/consumption)
+                buffer_cap_last_refill = last_CaOH2_refill/CaOH2_dosing
+                remaining_buffer_cap = ci_diff - buffer_cap_last_refill
+
+                print("\n********* Start Ca(OH)2 refill procedure *********")
+                act_M0101.set_state(True)
+                print(f"Remaining buffer capacity (in L, based on dosing/consumption of {CaOH2_dosing} g/L): {remaining_buffer_cap}\n")
+                print("Procedure: 1) Weigh Ca(OH)2 amount to be added.")
+                print("           2) Open stabilizer tank and add Ca(OH)2 while stirrer is running.")
+                CaOH2_refill = input("           3) Enter added amount of Ca(OH)2 in [g]: ")
+                time.sleep(2)
+                act_M0101.set_state(False)
+                self.add_log_file_entry("cumulative_inflow_last_CaOH2_refill", self.cumulative_inflow)
+                self.add_log_file_entry("CaOH2_refill", CaOH2_refill)
+                input("Change 'CaOH2_refill' to 'False' in parameters.toml and save file. (Press any key when done)")
+                print("\n*********** End Ca(OH)2 refill procedure *********")
+                continue
 
 
     def print_sensor_values_to_prompt(self, sensors, sensor_namel_list):
@@ -542,6 +584,33 @@ class routines:
             
             time.sleep(2)
 
+    # read latest event data from log-file
+    def read_latest_from_log_file(self, tag):
+        latest_value = 0
+        rows = []
+        with open(self.log_file_path, 'r', newline='') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                rows.append(row)
+                if row['tag'] == tag:
+                    latest_value = float(row['value'])
+        return latest_value
+    
+
+    # write information to log-file
+    def add_log_file_entry(self, tag, value):
+
+        new_entry = {
+            'datetime': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'tag': tag,
+            'value': str(value)
+            }
+        
+        # Safely write to file
+        with self.file_lock:
+            with open(self.log_file_path, mode="a", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=['datetime', 'tag', 'value'])
+                writer.writerow(new_entry)
 
     
     # Clean up after keyboard interrupt
@@ -582,5 +651,8 @@ class routines:
 
     def update_inflow_data(self, inflow_volume):
 
-        self.nbr_events += 1
+        self.event_nbr += 1
         self.cumulative_inflow += inflow_volume
+
+        self.add_log_file_entry('event_number', self.event_nbr)
+        self.add_log_file_entry('cumulative_inflow', self.cumulative_inflow)

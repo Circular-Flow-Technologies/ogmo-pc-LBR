@@ -43,7 +43,7 @@ print_B0111                = "False"
 print_B0201                = "False"
 print_B0202                = "False"
 print_B0203                = "False"
-print_BM201                = "True"
+print_BM201                = "False"
 print_BM202                = "False"
 print_B0301                = "False"
 print_B0303                = "False"
@@ -53,3 +53,7 @@ print_B0401                = "False"
 relaunch_M0101             = "False"
 relaunch_M0201             = "False"
 relaunch_M0202             = "False"
+
+# Maintenance
+CaOH2_dosing               = "10"    # assumed consumption (disolution + slip) im g/L
+CaOH2_refill               = "False" # opens dialog for Ca(OH)2 refil procedure during operation

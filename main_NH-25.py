@@ -46,7 +46,7 @@ def main():
     while True:
         if shared_state.is_running:
             start_time = time.time()
-            routines_ = routines(start_time, folder, "parameters.toml")
+            routines_ = routines(start_time, "parameters.toml", "log_file.csv")
             shared_state.routines_instance = routines_
 
             threads = []
@@ -64,6 +64,7 @@ def main():
             maybe_add("concentrate_discharge", routines_.concentrate_discharge, (actuators, sensors, actuator_name_list, sensor_name_list))
             maybe_add("observer", routines_.observer, (sensors, sensor_name_list))
             maybe_add("print_sensor_values_to_prompt", routines_.print_sensor_values_to_prompt, (sensors, sensor_name_list))
+            maybe_add("print_sensor_values_to_prompt", routines_.CaOH2_refill, args=(actuators, actuator_name_list))
 
             for t in threads:
                 t.start()

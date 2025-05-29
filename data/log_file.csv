@@ -1,0 +1,5 @@
+datetime,tag,value
+2025-01-01 00:00:00,event_number,0
+2025-01-01 00:00:00,cumulative_inflow,0
+2025-01-01 00:00:00,cumulative_inflow_last_CaOH2_refill,0
+2025-01-01 00:00:00,CaOH2_refill,0

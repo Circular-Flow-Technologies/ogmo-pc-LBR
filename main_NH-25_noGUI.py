@@ -36,8 +36,7 @@ def main():
 
     # Initialize routines
     start_time = time.time()
-    file_name = "parameters.toml"
-    routines_ = routines(start_time, folder, file_name)
+    routines_ = routines(start_time, "parameters.toml", "log_file.csv")
 
     # Create threads for all parallel tasks
     threads = []
@@ -50,6 +49,7 @@ def main():
     threads.append(threading.Thread(target=routines_.concentrate_discharge, args=(actuators, sensors, actuator_name_list, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.observer, args=(sensors, sensor_name_list,)))
     threads.append(threading.Thread(target=routines_.print_sensor_values_to_prompt, args=(sensors, sensor_name_list,)))
+    threads.append(threading.Thread(target=routines_.CaOH2_refill, args=(actuators, actuator_name_list,)))
 
     # Start threads
     for thread in threads:
