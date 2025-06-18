@@ -436,7 +436,7 @@ class routines:
 
                 # only discharge when concentrate tank is not full (check whether sensor is NO or NC)
                 # only discharge when evaporator tank liquid level is not below minimum
-                if sen_B0401.state == False and sen_B0201.value > threshold_min_B0201:
+                if sen_B0401.state == True and sen_B0201.value > threshold_min_B0201:
                     # Turn actuator on
                     # print(f"[Pump Control] Activating sludge pump at runtime: {current_runtime:.2f}s")
                     act_M0203.set_state(True)
@@ -498,7 +498,7 @@ class routines:
                 print("\n[[GUI]]")
                 print(f"Inflow detected: Event counter at [{self.event_nbr}]")
 
-            if sen_B0401.state == True:
+            if sen_B0401.state == False:
                 print("\n[[GUI]]")
                 print("DETECTION: Concentrate tank is full")
 
@@ -581,7 +581,10 @@ class routines:
                         if sensor.type == "EZO-HUM":
                             print(f"Sensor '{name}' reads: {sensor.value} / {sensor.value_aux_1} at runtime {current_runtime} [s]")
                         else:
-                            print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
+                            if name == "B0401":
+                                print(f"Sensor '{name}' reads: {sensor.state} at runtime {current_runtime} [s]")
+                            else:
+                                print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
                 else:
                     print(f"No flag for printing / not printing of sensor {name} in parameter file.")
             

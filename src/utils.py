@@ -298,52 +298,52 @@ class Sensor:
                     self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "digital_in0":
-                    self.state = bool(self.pxt.digital_in0)
+                    self.state = self.pxt.digital_in0
 
                 elif self.address == "digital_in1":
-                    self.state = bool(self.pxt.digital_in1)
+                    self.state = self.pxt.digital_in1
 
                 elif self.address == "digital_in2":
-                    self.state = bool(self.pxt.digital_in2)
+                    self.state = self.pxt.digital_in2
 
                 elif self.address == "digital_in3":
-                    self.state = bool(self.pxt.digital_in3)
+                    self.state = self.pxt.digital_in3
 
                 elif self.address == "digital_in4":
-                    self.state = bool(self.pxt.digital_in4)
+                    self.state = self.pxt.digital_in4
 
                 elif self.address == "digital_in5":
-                    self.state = bool(self.pxt.digital_in5)
+                    self.state = self.pxt.digital_in5
 
                 elif self.address == "digital_in6":
-                    self.state = bool(self.pxt.digital_in6)
+                    self.state = self.pxt.digital_in6
 
                 elif self.address == "digital_in7":
-                    self.state = bool(self.pxt.digital_in7)
+                    self.state = self.pxt.digital_in7
 
                 elif self.address == "digital_in8":
-                    self.state = bool(self.pxt.digital_in8)
+                    self.state = self.pxt.digital_in8
 
                 elif self.address == "digital_in9":
-                    self.state = bool(self.pxt.digital_in9)
+                    self.state = self.pxt.digital_in9
 
                 elif self.address == "digital_in10":
-                    self.state = bool(self.pxt.digital_in10)
+                    self.state = self.pxt.digital_in10
 
                 elif self.address == "digital_in11":
-                    self.state = bool(self.pxt.digital_in11)
+                    self.state = self.pxt.digital_in11
 
                 elif self.address == "digital_in12":
-                    self.state = bool(self.pxt.digital_in12)
+                    self.state = self.pxt.digital_in12
 
                 elif self.address == "digital_in13":
-                    self.state = bool(self.pxt.digital_in13)
+                    self.state = self.pxt.digital_in13
 
                 elif self.address == "digital_in14":
-                    self.state = bool(self.pxt.digital_in14)
+                    self.state = self.pxt.digital_in14
 
                 elif self.address == "digital_in15":
-                    self.state = bool(self.pxt.digital_in15)
+                    self.state = self.pxt.digital_in15
 
                 else:
                     print(f"Sensor address '{self.address}' is either unknown or has not yet been implemented.")

@@ -1,4 +1,4 @@
-machine_id                 = "NH-25-001"
+machine_id                 = "NH-25-002"
 dataq_sampling_interval    = "10"
 initial_wait_time          = "5"
 abort_flag                 = "False"
@@ -17,7 +17,7 @@ tau_M0101_delay            = "0"
 
 # evaporator feed
 tau_M0102_interval         = "10"
-tau_M0102_runtime          = "1"
+tau_M0102_runtime          = "2"
 tau_M0102_delay            = "0"
 threshold_min_B0101        = "-3"      # minimum liquid level in stabilizer
 threshold_max_B0101        = "60"      # maximum liquid level in stabilizer
@@ -29,7 +29,7 @@ threshold_min_B0202        = "-11.5"   # minimum pH value in evaporator
 
 # concentrate discharge
 tau_M0203_interval         = "10"
-tau_M0203_runtime          = "5"
+tau_M0203_runtime          = "1"
 tau_M0203_delay            = "0"
 
 # sensor print to prompt
