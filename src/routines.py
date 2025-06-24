@@ -39,10 +39,10 @@ class routines:
         self.csv_file_path = None  # initialized on first loop
 
         # event counter (number of inflow events since programm start)
-        self.event_nbr = 0
+        self.event_nbr = self.read_latest_from_log_file('event_number')
 
         # last event inflow and cumulative inflow volume since program start
-        self.last_event_inflow = self.read_latest_from_log_file('event_number')
+        self.last_event_inflow = 0
         self.cumulative_inflow = self.read_latest_from_log_file('cumulative_inflow')
 
 
@@ -308,14 +308,14 @@ class routines:
 
                 current_runtime = time.time() - (self.start_time + self.initial_wait_time)
                 # Turn actuator on
-                print(f"[Pump Control] Activating concentrator drain pump at runtime: {current_runtime:.2f}s")
+                print(f"[Pump Control] Activating collector tube drain pump at runtime: {current_runtime:.2f}s")
                 act_M0111.set_state(True)
 
                 # Wait for the specified runtime
                 time.sleep(tau_M0111_runtime)
                 
                 # Turn actuator off
-                print(f"[Pump Control] Deactivating concentrator drain pump at runtime: {current_runtime + tau_M0111_runtime:.2f}s")
+                print(f"[Pump Control] Deactivating collector tube drain pump at runtime: {current_runtime + tau_M0111_runtime:.2f}s")
                 act_M0111.set_state(False)
 
 
@@ -344,14 +344,14 @@ class routines:
 
                 current_runtime = time.time() - (self.start_time + self.initial_wait_time)
                 # Turn actuator on
-                print(f"[Pump Control] Activating concentrator flush pump at runtime: {current_runtime:.2f}s")
+                print(f"[Pump Control] Activating collector tube flush pump at runtime: {current_runtime:.2f}s")
                 act_M0112.set_state(True)
 
                 # Wait for the specified runtime
                 time.sleep(tau_M0112_runtime)
                 
                 # Turn actuator off
-                print(f"[Pump Control] Deactivating concentratro flush pump at runtime: {current_runtime + tau_M0112_runtime:.2f}s")
+                print(f"[Pump Control] Deactivating collector tube flush pump at runtime: {current_runtime + tau_M0112_runtime:.2f}s")
                 act_M0112.set_state(False)
 
 

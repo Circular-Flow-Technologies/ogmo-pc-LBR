@@ -4,11 +4,11 @@ initial_wait_time          = "5"
 abort_flag                 = "False"
 
 # collector tube
-tau_M0111_runtime          = "30"
-tau_M0111_delay            = "60"
-tau_M0112_runtime          = "15"
-tau_M0112_delay            = "60"
-threshold_min_B0111        = "0.05"   # minimum input volume in collector for event detection
+tau_M0111_runtime          = "40"
+tau_M0111_delay            = "20"
+tau_M0112_runtime          = "20"
+tau_M0112_delay            = "20"
+threshold_min_B0111        = "0.1"   # minimum input volume in collector for event detection
 
 # stabilizer stirrer
 tau_M0101_interval         = "10"
@@ -39,7 +39,7 @@ print_B0101                = "False"
 print_B0102                = "False"
 print_B0103                = "False"
 print_BM101                = "False"
-print_B0111                = "False"
+print_B0111                = "True"
 print_B0201                = "False"
 print_B0202                = "False"
 print_B0203                = "False"
