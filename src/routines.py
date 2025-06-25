@@ -45,6 +45,9 @@ class routines:
         self.last_event_inflow = 0
         self.cumulative_inflow = self.read_latest_from_log_file('cumulative_inflow')
 
+        # routine status flags
+        self.collector_drain_running = False
+
 
     # Data acquisition
     def data_acquisition(self, sensors, actuators):
@@ -302,14 +305,11 @@ class routines:
                 # Wait for the specified pre-delay
                 time.sleep(tau_M0111_delay)
 
-                # get inflow volume from collector tube sensor and update inflow event data
-                self.last_event_inflow = sen_B0111.read_value()
-                self.update_inflow_data(self.last_event_inflow)
-
                 current_runtime = time.time() - (self.start_time + self.initial_wait_time)
                 # Turn actuator on
                 print(f"[Pump Control] Activating collector tube drain pump at runtime: {current_runtime:.2f}s")
                 act_M0111.set_state(True)
+                self.collector_drain_running = True
 
                 # Wait for the specified runtime
                 time.sleep(tau_M0111_runtime)
@@ -317,6 +317,7 @@ class routines:
                 # Turn actuator off
                 print(f"[Pump Control] Deactivating collector tube drain pump at runtime: {current_runtime + tau_M0111_runtime:.2f}s")
                 act_M0111.set_state(False)
+                self.collector_drain_running = False
 
 
             time.sleep(1)
@@ -337,10 +338,14 @@ class routines:
             act_M0112 = actuators[actuator_name_list.index("M0112")]
             sen_B0111 = sensors[sensor_name_list.index("B0111")]
 
-            if sen_B0111.value > threshold_min_B0111:
+            if sen_B0111.value > threshold_min_B0111 and not(self.collector_drain_running):
 
                 # Wait for the specified pre-delay
                 time.sleep(tau_M0112_delay)
+
+                # get inflow volume from collector tube sensor and update inflow event data
+                self.last_event_inflow = sen_B0111.read_value()
+                self.update_inflow_data(self.last_event_inflow)
 
                 current_runtime = time.time() - (self.start_time + self.initial_wait_time)
                 # Turn actuator on
