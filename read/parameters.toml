@@ -19,8 +19,8 @@ tau_M0101_delay            = "0"
 tau_M0102_interval         = "10"
 tau_M0102_runtime          = "2"
 tau_M0102_delay            = "0"
-threshold_min_B0101        = "-3"      # minimum liquid level in stabilizer
-threshold_max_B0101        = "60"      # maximum liquid level in stabilizer
+threshold_min_B0101        = "10.0"    # minimum liquid level in stabilizer
+threshold_max_B0101        = "40.3"    # maximum liquid level in stabilizer (overflow position)
 threshold_min_B0102        = "-11.5"   # minimum pH value in stabilizer
 
 # evaporation
@@ -39,7 +39,7 @@ print_B0101                = "False"
 print_B0102                = "False"
 print_B0103                = "False"
 print_BM101                = "False"
-print_B0111                = "True"
+print_B0111                = "False"
 print_B0201                = "False"
 print_B0202                = "False"
 print_B0203                = "False"
