@@ -4,7 +4,7 @@ initial_wait_time          = "5"
 abort_flag                 = "False"
 
 # collector tube
-tau_M0111_runtime          = "40"
+tau_M0111_runtime          = "60"
 tau_M0111_delay            = "20"
 tau_M0112_runtime          = "20"
 tau_M0112_delay            = "20"
@@ -35,7 +35,7 @@ tau_M0203_delay            = "0"
 # sensor print to prompt
 print_B0001                = "False"
 print_EMRGY                = "False"
-print_B0101                = "False"
+print_B0101                = "True"
 print_B0102                = "False"
 print_B0103                = "False"
 print_BM101                = "False"
