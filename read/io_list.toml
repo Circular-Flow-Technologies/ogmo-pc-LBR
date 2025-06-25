@@ -9,7 +9,7 @@ address = "analog_in0"
 quad_gain = "0.0"
 gain = "5.0"
 offset = "0.0"
-calibrated = "True"
+calibrated = "yes"
 
 [[sensor]]
 name = "EMRGY"
@@ -31,7 +31,7 @@ address = "analog_in1"
 quad_gain = "0.0"
 gain = "-9.615023474178404"
 offset = "52.305164319248824"
-calibrated = ""
+calibrated = "yes"
 
 [[sensor]]
 name = "B0111"
@@ -83,10 +83,10 @@ descr = "Level sensor evaporator"
 type = "PX-AI"
 com_prot = "SPI"
 address = "analog_in3"
-quad_gain = "0.0"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
+quad_gain = "-0.03976849850191494"
+gain = "-2.693306026472488"
+offset = "22.438821253840036"
+calibrated = "yes"
 
 [[sensor]]
 name = "B0202"

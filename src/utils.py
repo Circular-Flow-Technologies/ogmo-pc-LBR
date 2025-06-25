@@ -231,7 +231,7 @@ class Sensor:
 
                 self.calibrated = True
                 print(f"Calibration successfully terminated.")
-                print(f"Enter 'gain' = {self.gain} and 'offset' {self.offset} for sensor '{self.name}' in 'io_list.toml'.")
+                print(f"Enter 'quad_gain' = {self.quad_gain}, 'gain' = {self.gain}, and 'offset' {self.offset} for sensor '{self.name}' in 'io_list.toml'.")
 
                 return
             

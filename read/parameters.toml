@@ -35,7 +35,7 @@ tau_M0203_delay            = "0"
 # sensor print to prompt
 print_B0001                = "False"
 print_EMRGY                = "False"
-print_B0101                = "True"
+print_B0101                = "False"
 print_B0102                = "False"
 print_B0103                = "False"
 print_BM101                = "False"
