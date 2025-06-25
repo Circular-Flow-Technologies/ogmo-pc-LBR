@@ -53,7 +53,7 @@ address = "90"
 quad_gain = "0.0"
 gain = "1.0"
 offset = "0.0"
-calibrated = ""
+calibrated = "yes"
 
 [[sensor]]
 name = "B0103"
@@ -64,7 +64,7 @@ address = "101"
 quad_gain = "0.0"
 gain = "1.0"
 offset = "0.0"
-calibrated = ""
+calibrated = "yes"
 
 [[sensor]]
 name = "BM101"
@@ -97,7 +97,7 @@ address = "99"
 quad_gain = "0.0"
 gain = "1.0"
 offset = "0.0"
-calibrated = ""
+calibrated = "yes"
 
 [[sensor]]
 name = "B0203"
@@ -108,7 +108,7 @@ address = "102"
 quad_gain = "0.0"
 gain = "1.0"
 offset = "0.0"
-calibrated = ""
+calibrated = "yes"
 
 [[sensor]]
 name = "BM201"
