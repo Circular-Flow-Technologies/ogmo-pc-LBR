@@ -123,7 +123,7 @@ class routines:
             sensor.type,
             sensor.name,
             sensor.address,
-            sensor.state,
+            0,
             value,
             sensor.value_aux_1,
             sensor.value_aux_2
@@ -277,7 +277,7 @@ class routines:
                 # print(f"[Pump Control] Activating stabilizer stirrer at runtime: {current_runtime:.2f}s")
                 
                 # Turn actuators ON (depending on over-current management settings)
-                if sen_BM101.state == False:
+                if sen_BM101.value == False:
                     act_M0101.set_state(True) # disc motor
                 else:
                     time.sleep(12) # give observer some time to detect
@@ -383,38 +383,31 @@ class routines:
 
             # get instance of required S&A
             act_M0201 = actuators[actuator_name_list.index("M0201")]
-            act_M0202 = actuators[actuator_name_list.index("M0202")]
+            act_M0204 = actuators[actuator_name_list.index("M0204")]
             act_M0301 = actuators[actuator_name_list.index("M0301")]
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
             sen_BM201 = sensors[sensor_name_list.index("BM201")]
-            sen_BM202 = sensors[sensor_name_list.index("BM202")]
 
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
             if sen_B0201.value > threshold_min_B0201:
                 # print(f"[Control] Evaporation process running at runtime: {current_runtime:.2f}s")
 
                 # Turn actuators ON (depending on over-current management settings)
-                if sen_BM201.state == False:
+                if sen_BM201.value == False:
                     act_M0201.set_state(True) # disc motor
                 else:
                     time.sleep(12) # give observer some time to detect
                     act_M0201.set_state(False)
                     self.relaunch_motor(act_M0201) # relaunch depends on flag in parameters file
 
-                if sen_BM202.state == False:
-                    act_M0202.set_state(True) # screw motor
-                else:
-                    time.sleep(12) # give observer some time to detect
-                    act_M0202.set_state(False)
-                    self.relaunch_motor(act_M0202) # relaunch depends on flag in parameters file
-                
+                act_M0204.set_state(True) # fans                
                 act_M0301.set_state(True) # dehumidifier
 
             else:
 
                 # Turn actuators OFF
                 act_M0201.set_state(False) # disc motor
-                act_M0202.set_state(False) # fans
+                act_M0204.set_state(False) # fans
                 act_M0301.set_state(False) # dehumidifier
 
             time.sleep(1)
@@ -441,98 +434,36 @@ class routines:
                 print(f"WARNING: time difference between interval and runtime should be longer than 1 sec.")
 
             # get instance of required S&A
+            act_M0202 = actuators[actuator_name_list.index("M0202")]
             act_M0203 = actuators[actuator_name_list.index("M0203")]
             sen_B0401 = sensors[sensor_name_list.index("B0401")]
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
+            sen_BM202 = sensors[sensor_name_list.index("BM202")]
         
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
             if int(current_runtime - tau_M0203_delay) % int(tau_M0203_interval) == 0:
 
                 # only discharge when concentrate tank is not full (check whether sensor is NO or NC)
                 # only discharge when evaporator tank liquid level is not below minimum
-                if sen_B0401.state == True and sen_B0201.value > threshold_min_B0201:
-                    # Turn actuator on
-                    # print(f"[Pump Control] Activating sludge pump at runtime: {current_runtime:.2f}s")
+                if sen_B0401.value == True and sen_B0201.value > threshold_min_B0201:
+
+                    if sen_BM202.value == False:
+                        act_M0202.set_state(True) # fans
+                    else:
+                        time.sleep(12) # give observer some time to detect
+                        act_M0202.set_state(False)
+                        self.relaunch_motor(act_M0202) # relaunch depends on flag in parameters file
+
+                    time.sleep(3) # let screw run for 3 sec. before pump is activated
                     act_M0203.set_state(True)
 
                     time.sleep(tau_M0203_runtime)  # Wait for the specified runtime
                     
-                    # Turn actuator off
-                    # print(f"[Pump Control] Deactivating sludge pump at runtime: {current_runtime + tau_M0203_runtime:.2f}s")
+                    act_M0202.set_state(False)
                     act_M0203.set_state(False)
 
             time.sleep(0.1)
 
-
-    # # observer routine (old)
-    # def observer(self, sensors, sensor_name_list):
-        
-    #     while not self.shutdown_event.is_set():
-
-    #         # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
-    #         pl = self.load_parameter_list()
-    #         threshold_min_B0101 = float(pl.get("threshold_min_B0101"))
-    #         threshold_max_B0101 = float(pl.get("threshold_max_B0101"))
-    #         threshold_min_B0102 = float(pl.get("threshold_min_B0102"))
-    #         threshold_min_B0202 = float(pl.get("threshold_min_B0202"))
-    #         threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
-    #         threshold_min_B0111 = float(pl.get("threshold_min_B0111"))
-
-    #         # get instance of required S&A
-    #         sen_B0101 = sensors[sensor_name_list.index("B0101")]
-    #         sen_B0102 = sensors[sensor_name_list.index("B0102")]
-    #         sen_B0201 = sensors[sensor_name_list.index("B0201")]
-    #         sen_B0202 = sensors[sensor_name_list.index("B0202")]
-    #         sen_B0111 = sensors[sensor_name_list.index("B0111")]
-    #         sen_B0401 = sensors[sensor_name_list.index("B0401")]
-    #         sen_BM101 = sensors[sensor_name_list.index("BM101")]
-    #         sen_BM201 = sensors[sensor_name_list.index("BM201")]
-    #         sen_BM202 = sensors[sensor_name_list.index("BM202")]
-
-    #         time.sleep(10)
-    #         current_runtime = time.time() - (self.start_time + self.initial_wait_time)
-
-    #         if sen_B0102.value < threshold_min_B0102:
-    #             print("\n[[GUI]]")
-    #             print(f"pH in Stabilizer is too low.")
-
-    #         if sen_B0202.value < threshold_min_B0202:    
-    #             print("\n[[GUI]]")
-    #             print(f"pH in Evaporator is too low.")
-            
-    #         if sen_B0101.value < threshold_min_B0101:
-    #             print("\n[[GUI]]")
-    #             print(f"Liquid level ({sen_B0101.value}) in stabilizer tank bellow minimum ({threshold_min_B0101}). No feed to evaporator.")
-
-    #         if sen_B0101.value > threshold_max_B0101:
-    #             print("\n[[GUI]]")
-    #             print(f"Liquid level ({sen_B0101.value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
-
-    #         if sen_B0111.value > threshold_min_B0111:
-    #             print("\n[[GUI]]")
-    #             print(f"Inflow detected: Event counter at [{self.event_nbr}]")
-
-    #         if sen_B0401.state == False:
-    #             print("\n[[GUI]]")
-    #             print("DETECTION: Concentrate tank is full")
-
-    #         if sen_B0201.value < threshold_min_B0201:
-    #             print("\n[[GUI]]")
-    #             print(f"Liquid level ({sen_B0201.value}) in evaporator at minimum ({threshold_min_B0201}). Evaporation and concentrate discharge disabled!")
-
-    #         if sen_BM101.state == True:
-    #             print("\n[[GUI]]")
-    #             print(f"DETECTION: {sen_BM101.descr}")
-
-    #         if sen_BM201.state == True:
-    #             print("\n[[GUI]]")
-    #             print(f"DETECTION: {sen_BM201.descr}")
-
-    #         if sen_BM202.state == True:
-    #             print("\n[[GUI]]")
-    #             print(f"DETECTION: {sen_BM202.descr}")
-            
-    #         time.sleep(0.1)
 
     def observer(self, sensors, sensor_name_list):
         while not self.shutdown_event.is_set():
@@ -551,56 +482,56 @@ class routines:
             time.sleep(10)
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
 
-            if self.check_and_log_change("B0102_low_pH", sen["B0102"].value < threshold_min_B0102,
+            if self.check_and_log_rising_edge("B0102_low_pH", sen["B0102"].value < threshold_min_B0102,
                                         "B0102_pH_low", sen["B0102"].value):
                 print("\n[[GUI]]")
                 print("pH in Stabilizer is too low.")
 
-            if self.check_and_log_change("B0202_low_pH", sen["B0202"].value < threshold_min_B0202,
+            if self.check_and_log_rising_edge("B0202_low_pH", sen["B0202"].value < threshold_min_B0202,
                                         "B0202_pH_low", sen["B0202"].value):
                 print("\n[[GUI]]")
                 print("pH in Evaporator is too low.")
 
-            if self.check_and_log_change("B0101_liquid_low", sen["B0101"].value < threshold_min_B0101,
+            if self.check_and_log_rising_edge("B0101_liquid_low", sen["B0101"].value < threshold_min_B0101,
                                         "B0101_level_low", sen["B0101"].value):
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen['B0101'].value}) in stabilizer tank below minimum ({threshold_min_B0101}). No feed to evaporator.")
 
-            if self.check_and_log_change("B0101_liquid_high", sen["B0101"].value > threshold_max_B0101,
+            if self.check_and_log_rising_edge("B0101_liquid_high", sen["B0101"].value > threshold_max_B0101,
                                         "B0101_level_high", sen["B0101"].value):
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen['B0101'].value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
 
-            if self.check_and_log_change("B0111_inflow", sen["B0111"].value > threshold_min_B0111,
+            if self.check_and_log_rising_edge("B0111_inflow", sen["B0111"].value > threshold_min_B0111,
                                         "event_number", self.event_nbr):
                 print("\n[[GUI]]")
                 print(f"Inflow detected: Event counter at [{self.event_nbr}]")
 
-            if self.check_and_log_change("B0401_tank_full", not sen["B0401"].state,
-                                        "B0401_concentrate_full", sen["B0401"].state):
+            if self.check_and_log_rising_edge("B0401_tank_full", not sen["B0401"].value,
+                                        "B0401_concentrate_full", sen["B0401"].value):
                 print("\n[[GUI]]")
                 print("DETECTION: Concentrate tank is full")
 
-            if self.check_and_log_change("B0201_level_low", sen["B0201"].value < threshold_min_B0201,
+            if self.check_and_log_rising_edge("B0201_level_low", sen["B0201"].value < threshold_min_B0201,
                                         "B0201_level_low", sen["B0201"].value):
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen['B0201'].value}) in evaporator at minimum ({threshold_min_B0201}). Evaporation and concentrate discharge disabled!")
 
-            if self.check_and_log_change("BM101_detected", sen["BM101"].state,
+            if self.check_and_log_rising_edge("BM101_detected", sen["BM101"].value,
                                         "overcurrent_detection", sen["BM101"].descr):
-                if sen["BM101"].state:
+                if sen["BM101"].value:
                     print("\n[[GUI]]")
                     print(f"DETECTION: {sen['BM101'].descr}")
 
-            if self.check_and_log_change("BM201_detected", sen["BM201"].state,
+            if self.check_and_log_rising_edge("BM201_detected", sen["BM201"].value,
                                         "overcurrent_detection", sen["BM201"].descr):
-                if sen["BM201"].state:
+                if sen["BM201"].value:
                     print("\n[[GUI]]")
                     print(f"DETECTION: {sen['BM201'].descr}")
 
-            if self.check_and_log_change("BM202_detected", sen["BM202"].state,
+            if self.check_and_log_rising_edge("BM202_detected", sen["BM202"].value,
                                         "overcurrent_detection", sen["BM202"].descr):
-                if sen["BM202"].state:
+                if sen["BM202"].value:
                     print("\n[[GUI]]")
                     print(f"DETECTION: {sen['BM202'].descr}")
 
@@ -623,14 +554,18 @@ class routines:
                 writer.writerow(new_entry)
 
 
-    def check_and_log_change(self, condition_key, current_state, log_tag, log_value):
-        previous_state = self.observer_states.get(condition_key)
-        if previous_state != current_state:
-            self.observer_states[condition_key] = current_state
-            self.add_log_file_entry(log_tag, log_value)
-            return True  # Condition changed
-        return False  # No change
+    def check_and_log_rising_edge(self, condition_key, current_state, log_tag, log_value):
+        previous_state = self.observer_states.get(condition_key, False)
 
+        # Store the current state for the next iteration
+        self.observer_states[condition_key] = current_state
+
+        # Log only if it was False and is now True
+        if not previous_state and current_state:
+            self.add_log_file_entry(log_tag, log_value)
+            return True  # Rising edge detected and logged
+
+        return False  # No rising edge, no log
 
     # Ca(OH)2 refill procedure
     def CaOH2_refill(self, actuators, actuator_name_list):
@@ -692,10 +627,7 @@ class routines:
                         if sensor.type == "EZO-HUM":
                             print(f"Sensor '{name}' reads: {sensor.value} / {sensor.value_aux_1} at runtime {current_runtime} [s]")
                         else:
-                            if name == "B0401":
-                                print(f"Sensor '{name}' reads: {sensor.state} at runtime {current_runtime} [s]")
-                            else:
-                                print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
+                            print(f"Sensor '{name}' reads: {sensor.value} at runtime {current_runtime} [s]")
                 else:
                     print(f"No flag for printing / not printing of sensor {name} in parameter file.")
             
