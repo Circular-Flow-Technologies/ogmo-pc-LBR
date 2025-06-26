@@ -80,7 +80,7 @@ fig = plt.figure(1)
 
 ax = fig.add_subplot(111)
 
-ax.plot(df["timestamp"], df["device_type"], 'k')
+ax.plot(df["timestamp"], df["value"], 'k')
 
 ax.set_title(device_name)
 ax.set_xlabel("time")
