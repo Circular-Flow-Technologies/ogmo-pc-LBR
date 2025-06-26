@@ -454,7 +454,7 @@ class routines:
                         act_M0202.set_state(False)
                         self.relaunch_motor(act_M0202) # relaunch depends on flag in parameters file
 
-                    time.sleep(3) # let screw run for 3 sec. before pump is activated
+                    time.sleep(5) # let screw run for some seconds before pump is activated
                     act_M0203.set_state(True)
 
                     time.sleep(tau_M0203_runtime)  # Wait for the specified runtime
