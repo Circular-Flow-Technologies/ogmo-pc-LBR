@@ -149,7 +149,6 @@ class routines:
             actuator.state,
             0,
             0,
-            0,
             0
         ]
 
@@ -170,13 +169,13 @@ class routines:
             f"{global_runtime:.2f}",
             self.machine_id,
             io_type,
+            0,
+            0,
+            0,
+            0,
             self.event_nbr,
             self.last_event_inflow,
             self.cumulative_inflow,
-            0,
-            0,
-            0,
-            0
         ]
 
     def _read_and_log_CPU_temp(self):
@@ -184,6 +183,7 @@ class routines:
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         global_runtime = time.time() - self.start_time
         io_type = "CPU"
+        name = "CPU-Temp"
 
         temp_str = os.popen("vcgencmd measure_temp").readline()
         temp_value = float(temp_str.replace("temp=", "").replace("'C\n", ""))
@@ -193,11 +193,11 @@ class routines:
             f"{global_runtime:.2f}",
             self.machine_id,
             io_type,
+            0,
+            name,
+            0,
+            0,
             temp_value,
-            0,
-            0,
-            0,
-            0,
             0,
             0
         ]

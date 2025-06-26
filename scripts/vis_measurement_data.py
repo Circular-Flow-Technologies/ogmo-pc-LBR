@@ -5,7 +5,7 @@ from src.utils import get_file_path
 
 # file path
 folder = "data"
-file_name = "2025-04-14_NH-25-001_measurement_data.csv"
+file_name = "2025-06-24_NH-25-002_measurement_data.csv"
 csv_file = get_file_path(folder, file_name)
 DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
