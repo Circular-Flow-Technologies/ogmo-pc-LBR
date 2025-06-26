@@ -20,7 +20,6 @@ class Sensor:
         self.quad_gain   = float(sensor_meta_data["quad_gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.gain        = float(sensor_meta_data["gain"])  # only needed for sensors on PiXtend analog input interface (set during calibration)
         self.offset      = float(sensor_meta_data["offset"]) # only needed for sensors on PiXtend analog input interface (set during calibration)
-        self.state       = False 
         self.connected   = False  # Default connection status
         self.configured  = False  # Default connection status
         
@@ -298,52 +297,52 @@ class Sensor:
                     self.value = self.quad_gain*read_value**2 + self.gain*read_value + self.offset
 
                 elif self.address == "digital_in0":
-                    self.state = self.pxt.digital_in0
+                    self.value = self.pxt.digital_in0
 
                 elif self.address == "digital_in1":
-                    self.state = self.pxt.digital_in1
+                    self.value = self.pxt.digital_in1
 
                 elif self.address == "digital_in2":
-                    self.state = self.pxt.digital_in2
+                    self.value = self.pxt.digital_in2
 
                 elif self.address == "digital_in3":
-                    self.state = self.pxt.digital_in3
+                    self.value = self.pxt.digital_in3
 
                 elif self.address == "digital_in4":
-                    self.state = self.pxt.digital_in4
+                    self.value = self.pxt.digital_in4
 
                 elif self.address == "digital_in5":
-                    self.state = self.pxt.digital_in5
+                    self.value = self.pxt.digital_in5
 
                 elif self.address == "digital_in6":
-                    self.state = self.pxt.digital_in6
+                    self.value = self.pxt.digital_in6
 
                 elif self.address == "digital_in7":
-                    self.state = self.pxt.digital_in7
+                    self.value = self.pxt.digital_in7
 
                 elif self.address == "digital_in8":
-                    self.state = self.pxt.digital_in8
+                    self.value = self.pxt.digital_in8
 
                 elif self.address == "digital_in9":
-                    self.state = self.pxt.digital_in9
+                    self.value = self.pxt.digital_in9
 
                 elif self.address == "digital_in10":
-                    self.state = self.pxt.digital_in10
+                    self.value = self.pxt.digital_in10
 
                 elif self.address == "digital_in11":
-                    self.state = self.pxt.digital_in11
+                    self.value = self.pxt.digital_in11
 
                 elif self.address == "digital_in12":
-                    self.state = self.pxt.digital_in12
+                    self.value = self.pxt.digital_in12
 
                 elif self.address == "digital_in13":
-                    self.state = self.pxt.digital_in13
+                    self.value = self.pxt.digital_in13
 
                 elif self.address == "digital_in14":
-                    self.state = self.pxt.digital_in14
+                    self.value = self.pxt.digital_in14
 
                 elif self.address == "digital_in15":
-                    self.state = self.pxt.digital_in15
+                    self.value = self.pxt.digital_in15
 
                 else:
                     print(f"Sensor address '{self.address}' is either unknown or has not yet been implemented.")
@@ -402,86 +401,114 @@ class Actuator:
             if self.address == "relay0":
                 if state == True:
                     self.pxt.relay0 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.relay0 = self.pxt.OFF
+                    self.state  = False
 
             elif self.address == "relay1":
                 if state == True:
                     self.pxt.relay1 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.relay1 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "relay2":
                 if state == True:
                     self.pxt.relay2 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.relay2 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "relay3":
                 if state == True:
                     self.pxt.relay3 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.relay3 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out0":
                 if state == True:
                     self.pxt.digital_out0 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out0 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out1":
                 if state == True:
                     self.pxt.digital_out1 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out1 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out2":
                 if state == True:
                     self.pxt.digital_out2 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out2 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out3":
                 if state == True:
                     self.pxt.digital_out3 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out3 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out4":
                 if state == True:
                     self.pxt.digital_out4 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out4 = self.pxt.OFF
+                    self.state = False
 
             elif self.address == "digital_out5":
                 if state == True:
                     self.pxt.digital_out5 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out5 = self.pxt.OFF
+                    self.state = False
                     
             elif self.address == "digital_out6":
                 if state == True:
                     self.pxt.digital_out6 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out6 = self.pxt.OFF
+                    self.state = False
                     
             elif self.address == "digital_out7":
                 if state == True:
                     self.pxt.digital_out7 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out7 = self.pxt.OFF
+                    self.state = False
                     
             elif self.address == "digital_out8":
                 if state == True:
                     self.pxt.digital_out8 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out8 = self.pxt.OFF
+                    self.state = False
                     
             elif self.address == "digital_out9":
                 if state == True:
                     self.pxt.digital_out9 = self.pxt.ON
+                    self.state = True
                 else:
                     self.pxt.digital_out9 = self.pxt.OFF
+                    self.state = False
                     
             else:
                 print(f"Actuator address '{self.address}' is unknown.")

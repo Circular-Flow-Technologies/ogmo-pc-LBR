@@ -4,10 +4,10 @@ initial_wait_time          = "5"
 abort_flag                 = "False"
 
 # collector tube
-tau_M0111_runtime          = "60"
+tau_M0111_runtime          = "45"
 tau_M0111_delay            = "30"
-tau_M0112_runtime          = "20"
-tau_M0112_delay            = "25"
+tau_M0112_runtime          = "10"
+tau_M0112_delay            = "30"
 threshold_min_B0111        = "0.1"   # minimum input volume in collector for event detection
 
 # stabilizer stirrer
@@ -19,12 +19,12 @@ tau_M0101_delay            = "0"
 tau_M0102_interval         = "10"
 tau_M0102_runtime          = "2"
 tau_M0102_delay            = "0"
-threshold_min_B0101        = "10.0"    # minimum liquid level in stabilizer
+threshold_min_B0101        = "16.0"    # minimum liquid level in stabilizer
 threshold_max_B0101        = "40.3"    # maximum liquid level in stabilizer (overflow position)
-threshold_min_B0102        = "-11.5"   # minimum pH value in stabilizer
+threshold_min_B0102        = "11.5"   # minimum pH value in stabilizer
 
 # evaporation
-threshold_min_B0201        = "-5"      # minimum liquid level in evaporator
+threshold_min_B0201        = "10"      # minimum liquid level in evaporator
 threshold_min_B0202        = "-11.5"   # minimum pH value in evaporator
 
 # concentrate discharge
