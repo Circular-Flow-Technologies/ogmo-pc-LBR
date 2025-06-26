@@ -177,6 +177,12 @@ class routines:
             self.last_event_inflow,
             self.cumulative_inflow,
         ]
+        
+        # Safely write to file
+        with self.file_lock:
+            with open(self.csv_file_path, mode="a", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(row)
 
     def _read_and_log_CPU_temp(self):
         # Prepare row data
