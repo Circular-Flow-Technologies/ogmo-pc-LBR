@@ -519,24 +519,34 @@ class routines:
 
             if self.check_and_log_rising_edge("BM101_detected", sen["BM101"].value,
                                         "overcurrent_detection", sen["BM101"].descr):
-                if sen["BM101"].value:
-                    print("\n[[GUI]]")
-                    print(f"DETECTION: {sen['BM101'].descr}")
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen['BM101'].descr}")
 
             if self.check_and_log_rising_edge("BM201_detected", sen["BM201"].value,
                                         "overcurrent_detection", sen["BM201"].descr):
-                if sen["BM201"].value:
-                    print("\n[[GUI]]")
-                    print(f"DETECTION: {sen['BM201'].descr}")
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen['BM201'].descr}")
 
             if self.check_and_log_rising_edge("BM202_detected", sen["BM202"].value,
                                         "overcurrent_detection", sen["BM202"].descr):
-                if sen["BM202"].value:
-                    print("\n[[GUI]]")
-                    print(f"DETECTION: {sen['BM202'].descr}")
+                print("\n[[GUI]]")
+                print(f"DETECTION: {sen['BM202'].descr}")
 
             time.sleep(0.1)
 
+
+    def check_and_log_rising_edge(self, condition_key, current_state, log_tag, log_value):
+        previous_state = self.observer_states.get(condition_key, False)
+
+        # Store the current state for the next iteration
+        self.observer_states[condition_key] = current_state
+
+        # Log only if it was False and is now True
+        if not previous_state and current_state:
+            self.add_log_file_entry(log_tag, log_value)
+            return True  # Rising edge detected and logged
+
+        return False  # No rising edge, no log
 
     # write information to log-file
     def add_log_file_entry(self, tag, value):
@@ -553,19 +563,6 @@ class routines:
                 writer = csv.DictWriter(f, fieldnames=['datetime', 'tag', 'value'])
                 writer.writerow(new_entry)
 
-
-    def check_and_log_rising_edge(self, condition_key, current_state, log_tag, log_value):
-        previous_state = self.observer_states.get(condition_key, False)
-
-        # Store the current state for the next iteration
-        self.observer_states[condition_key] = current_state
-
-        # Log only if it was False and is now True
-        if not previous_state and current_state:
-            self.add_log_file_entry(log_tag, log_value)
-            return True  # Rising edge detected and logged
-
-        return False  # No rising edge, no log
 
     # Ca(OH)2 refill procedure
     def CaOH2_refill(self, actuators, actuator_name_list):

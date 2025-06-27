@@ -1,7 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
-from src.utils import get_file_path
 from pathlib import Path
 import re
 
