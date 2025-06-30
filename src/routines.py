@@ -497,10 +497,10 @@ class routines:
                 print("\n[[GUI]]")
                 print(f"Liquid level ({sen['B0101'].value}) in stabilizer tank below minimum ({threshold_min_B0101}). No feed to evaporator.")
 
-            if self.check_and_log_rising_edge("B0101_liquid_high", sen["B0101"].value > threshold_max_B0101,
-                                        "B0101_level_high", sen["B0101"].value):
-                print("\n[[GUI]]")
-                print(f"Liquid level ({sen['B0101'].value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
+            # if self.check_and_log_rising_edge("B0101_liquid_high", sen["B0101"].value > threshold_max_B0101,
+            #                             "B0101_level_high", sen["B0101"].value):
+            #     print("\n[[GUI]]")
+            #     print(f"Liquid level ({sen['B0101'].value}) in stabilizer tank at maximum ({threshold_max_B0101}). Effluent via overflow!")
 
             if self.check_and_log_rising_edge("B0111_inflow", sen["B0111"].value > threshold_min_B0111,
                                         "event_number", self.event_nbr):
