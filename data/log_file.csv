@@ -3,3 +3,9 @@ datetime,tag,value
 2025-01-01 00:00:00,cumulative_inflow,0
 2025-01-01 00:00:00,cumulative_inflow_last_CaOH2_refill,0
 2025-01-01 00:00:00,CaOH2_refill,500
+2025-07-01 08:01:25,program_run,1
+2025-07-01 08:01:35,B0101_level_low,7.798122065727696
+2025-07-01 08:01:35,B0201_level_low,6.8560245761747645
+2025-07-01 08:07:39,event_number,0.0
+2025-07-01 08:08:06,cumulative_inflow,0.1494029850746268
+2025-07-01 08:24:41,program_run,0

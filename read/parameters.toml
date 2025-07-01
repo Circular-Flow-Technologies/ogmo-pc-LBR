@@ -13,7 +13,7 @@ threshold_min_B0111        = "0.1"   # minimum input volume in collector for eve
 # stabilizer stirrer
 tau_M0101_interval         = "1800"
 tau_M0101_runtime          = "60"
-tau_M0101_delay            = "300"
+tau_M0101_delay            = "30"
 
 # evaporator feed
 tau_M0102_interval         = "7200"
@@ -36,12 +36,12 @@ tau_M0203_delay            = "0"
 print_B0001                = "False"
 print_EMRGY                = "False"
 print_B0101                = "False"
-print_B0102                = "True"
+print_B0102                = "False"
 print_B0103                = "False"
 print_BM101                = "False"
 print_B0111                = "False"
 print_B0201                = "False"
-print_B0202                = "True"
+print_B0202                = "False"
 print_B0203                = "False"
 print_BM201                = "False"
 print_BM202                = "False"
