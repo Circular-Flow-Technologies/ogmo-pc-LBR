@@ -6,10 +6,10 @@ import numpy as np
 #-------------------
 
 # inflow mass flow rate [kg/s] (estimated average over one day)
-m_dot_in = 25. / (24*3600.)
+m_dot_in = 10. / (24*3600.)
 
 # evaporation rate [kg/s] (from experiment)
-m_dot_evap = 700. / (1000*3600.)
+m_dot_evap = 1000. / (1000*3600.)
 
 # peristalitic pumps mass flow rate [kg/s] (from calibration)
 m_dot_M0102 =  549. /(1000*60.)
@@ -17,7 +17,7 @@ m_dot_M0203 = 1430. /(1000*60.)
 
 # number of intervals (chosen)
 N_f_evi  = 12.
-N_f_conc =  2.
+N_f_conc =  1.
 
 # evaporator overflow fraction
 phi_OF_evi = 0.2
