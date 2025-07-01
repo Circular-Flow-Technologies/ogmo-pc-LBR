@@ -1,9 +1,9 @@
 import numpy as np
+import re
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 from pathlib import Path
-import re
 
 # Path to the data directory
 data_dir = Path(__file__).resolve().parent.parent / 'data'
@@ -59,11 +59,14 @@ for file in selected_files:
 
 # Concatenate all selected sensor data
 DF = pd.concat(DF, ignore_index=True)
-DF["timestamp"] = pd.to_datetime(DF["timestamp"]) # for nicer plotting results
+DF["timestamp"]  = pd.to_datetime(DF["timestamp"]) # for nicer plotting results
+DF["value"]      = pd.to_numeric(DF['value'], errors='coerce')
+DF["value_aux1"] = pd.to_numeric(DF['value_aux1'], errors='coerce')
 
-# Filter data frame
+# Filter data frame - Sensor data
 EVENT = filter_data(DF, 'io_type', 'Event')
-CPU   = filter_data(DF, 'io_type', 'CPU', 'name', 'CPU-Temp')
+CPU   = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0001')
+B0001 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0101')
 B0101 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0101')
 B0102 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0102')
 B0103 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0103')
@@ -73,6 +76,31 @@ B0203 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0203')
 B0301 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0301')
 B0303 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0303')
 
+# Filter data frame - Actuator data
+M0101 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0101')
+M0102 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0103')
+M0111 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0111')
+M0112 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0112')
+M0201 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0201')
+M0202 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0202')
+M0203 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0203')
+M0204 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0204')
+M0301 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0301')
+
+
+#---------------------------
+# CALCULATIONS
+#---------------------------
+
+# consider only non-zero events
+NZ_EVENT = EVENT[EVENT["value_aux1"] != 0]
+
+# Step 2: Keep only rows where the value differs from the previous row
+NZ_EVENT = NZ_EVENT[NZ_EVENT["value_aux1"] != NZ_EVENT["value_aux1"].shift()]
+
+# extract number of events over considered period and average inflow volume
+num_events = len(NZ_EVENT)
+avg_value = NZ_EVENT["value_aux1"].mean()
 
 
 #---------------------------
@@ -81,64 +109,89 @@ B0303 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0303')
 plt.close('all')
 
 # SENSORS
-fig = plt.figure(1, figsize=[8, 20])
+fig = plt.figure(1, figsize=[12, 22])
 
 # events
-ax = fig.add_subplot(711)
-ax.scatter(EVENT["timestamp"], EVENT["value"]*1000)
+ax = fig.add_subplot(811)
+ax.scatter(NZ_EVENT["timestamp"], NZ_EVENT["value_aux1"]*1000, c='black', s=10)
+ax.text(0.95, 0.95, f'N={num_events}\nAvg={avg_value:.1f}',
+        transform=ax.transAxes, fontsize=10,
+        verticalalignment='top', horizontalalignment='right',
+        bbox=dict(facecolor='white', alpha=0.5))
 ax.set_title("Inflow events")
 ax.set_ylim(0, 500)
-ax.set_yticks(np.linspace(0, 500, 10))
 ax.set_ylabel("V [ml]")
+ax.tick_params(axis='x', labelbottom=False)
 
 # liquid level
-ax = fig.add_subplot(712)
-ax.plot(B0101["timestamp"], B0101["value"], label="Stabilizor")
-ax.plot(B0201["timestamp"], B0201["value"], label="Evaporator")
+ax = fig.add_subplot(812)
+low_lim_S, up_lim_S = 15, 40.3 
+low_lim_E = 12
+lw = 1.0
+S_ax, = ax.plot(B0101["timestamp"], B0101["value"], label="Stabilizor")
+S_color = S_ax.get_color()
+ax.plot(B0101["timestamp"], low_lim_S*np.ones_like(B0101["value"]), '--', color = S_color, label="Stab. lower limit", linewidth=lw)
+ax.plot(B0101["timestamp"],  up_lim_S*np.ones_like(B0101["value"]), '-.', color = S_color, label="Stab. upper limit", linewidth=lw)
+E_ax, = ax.plot(B0201["timestamp"], B0201["value"], label="Evaporator")
+E_color = E_ax.get_color()
+ax.plot(B0201["timestamp"], low_lim_E*np.ones_like(B0101["value"]), '--', color = E_color, label="Evap. lower limit", linewidth=lw)
 ax.set_title("Liquid level")
 ax.set_ylim(0, 50)
-ax.set_yticks(np.linspace(0, 50, 10))
 ax.set_ylabel("V [l]")
+ax.tick_params(axis='x', labelbottom=False)
 ax.legend()
 
 # ph
-ax = fig.add_subplot(713)
+ax = fig.add_subplot(813)
 ax.plot(B0102["timestamp"], B0102["value"], label="Stabilizor")
 ax.plot(B0202["timestamp"], B0202["value"], label="Evaporator")
+ax.plot(B0202["timestamp"], 11.5*np.ones_like(B0202["value"]), 'k--', label="ph = 11.5", linewidth=lw)
 ax.set_title("pH")
 ax.set_ylim(0, 14)
 ax.set_ylabel("pH")
+ax.tick_params(axis='x', labelbottom=False)
 ax.legend()
 
 # temperature (liquid)
-ax = fig.add_subplot(714)
+ax = fig.add_subplot(814)
 ax.plot(B0103["timestamp"], B0103["value"], label="Stabilizor")
 ax.plot(B0203["timestamp"], B0203["value"], label="Evaporator")
 ax.set_title("Temperature (liquid)")
 ax.set_ylim(15, 30)
 ax.set_ylabel("T [°C]")
+ax.tick_params(axis='x', labelbottom=False)
 ax.legend()
 
 # rel. humidity (process air)
-ax = fig.add_subplot(715)
+ax = fig.add_subplot(815)
 ax.plot(B0301["timestamp"], B0301["value"], label="upstream dehum.")
 ax.plot(B0303["timestamp"], B0303["value"], label="downstream dehum.")
 ax.set_title("rel. humidity (process air)")
 ax.set_ylim(0, 100)
 ax.set_ylabel("RH [%]")
+ax.tick_params(axis='x', labelbottom=False)
 ax.legend()
 
 # temperature (process air)
-ax = fig.add_subplot(716)
-ax.plot(B0301["timestamp"], B0301["value_aux1"], label="upstream dehum.")
-ax.plot(B0303["timestamp"], B0303["value_aux1"], label="downstream dehum.")
+ax = fig.add_subplot(816)
+ax.plot(B0301["timestamp"], B0301["value_aux1"], color=[0.5, 0.2, 0.5], label="upstream dehum.")
+ax.plot(B0303["timestamp"], B0303["value_aux1"], color=[0.2, 0.2, 0.5], label="downstream dehum.")
 ax.set_title("rel. humidity (process air)")
 ax.set_ylim(15, 40)
 ax.set_ylabel("T [°C]")
+ax.tick_params(axis='x', labelbottom=False)
 ax.legend()
 
+# system current draw()
+ax = fig.add_subplot(817)
+ax.plot(B0001["timestamp"], B0001["value"], color=[0.5, 0.5, 0.5])
+ax.set_title("System current draw")
+ax.set_ylim(0, 10)
+ax.set_ylabel("I [A]")
+ax.tick_params(axis='x', labelbottom=False)
+
 # CPU-Temp
-ax = fig.add_subplot(717)
+ax = fig.add_subplot(818)
 ax.plot(CPU["timestamp"], CPU["value"], 'k')
 ax.set_title("CPU-temperature")
 ax.set_ylim(0, 80)
@@ -154,6 +207,75 @@ figure_dir = Path(__file__).resolve().parent.parent / 'figures'
 filename = date_input + '_sensors_dashboard.png'
 file_path = figure_dir / filename
 plt.savefig(file_path, dpi=300)
+
+
+# ACTUATORS
+fig = plt.figure(2, figsize=[12, 16])
+
+# events
+ax = fig.add_subplot(911)
+ax.plot(M0101["timestamp"], M0101["value"])
+ax.set_title("Stabilizer stirrer (M0101)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(912)
+ax.plot(M0102["timestamp"], M0102["value"])
+ax.set_title("Evaporator feed pump (M0102)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(913)
+ax.plot(M0111["timestamp"], M0111["value"])
+ax.set_title("Collection tube drain pump (M0111)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(914)
+ax.plot(M0112["timestamp"], M0112["value"])
+ax.set_title("Collection tube flush pump (M0112)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(915)
+ax.plot(M0201["timestamp"], M0201["value"])
+ax.set_title("Evaporator disc motor (M0201)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(916)
+ax.plot(M0202["timestamp"], M0202["value"])
+ax.set_title("Evaporator screw motor (M0202)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(917)
+ax.plot(M0203["timestamp"], M0203["value"])
+ax.set_title("Concentrate sludge pump (M0203)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(918)
+ax.plot(M0204["timestamp"], M0204["value"])
+ax.set_title("Evaporator fans (M0401)")
+ax.set_ylim(0, 1)
+ax.tick_params(axis='x', labelbottom=False)
+
+ax = fig.add_subplot(919)
+ax.plot(M0301["timestamp"], M0301["value"])
+ax.set_title("Dehumidifier compressor (M0301)")
+ax.set_ylim(0, 1)
+ax.set_xlabel("time")
+
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+# Path to the data directory
+figure_dir = Path(__file__).resolve().parent.parent / 'figures'
+filename = date_input + '_actuators_dashboard.png'
+file_path = figure_dir / filename
+plt.savefig(file_path, dpi=300)
+
 
 plt.show()
 
