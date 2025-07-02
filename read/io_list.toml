@@ -143,16 +143,16 @@ gain = "1.0"
 offset = "0.0"
 calibrated = ""
 
-[[sensor]]
-name = "B0303"
-descr = "Rel. humidity downstream evaporator"
-type = "EZO-HUM"
-com_prot = "I2C"
-address = "111"
-quad_gain = "0.0"
-gain = "1.0"
-offset = "0.0"
-calibrated = ""
+# [[sensor]]
+# name = "B0303"
+# descr = "Rel. humidity downstream evaporator"
+# type = "EZO-HUM"
+# com_prot = "I2C"
+# address = "111"
+# quad_gain = "0.0"
+# gain = "1.0"
+# offset = "0.0"
+# calibrated = ""
 
 [[sensor]]
 name = "B0401"
