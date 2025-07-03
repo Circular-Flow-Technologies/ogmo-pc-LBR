@@ -65,7 +65,7 @@ DF["value_aux1"] = pd.to_numeric(DF['value_aux1'], errors='coerce')
 
 # Filter data frame - Sensor data
 EVENT = filter_data(DF, 'io_type', 'Event')
-CPU   = filter_data(DF, 'io_type', 'Sensor', 'name', 'CPU-Temp')
+CPU   = filter_data(DF, 'io_type', 'CPU', 'name', 'CPU-Temp')
 B0001 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0001')
 B0101 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0101')
 B0102 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0102')
