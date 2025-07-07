@@ -46,7 +46,10 @@ class routines:
         self.cumulative_inflow = self.read_latest_from_log_file('cumulative_inflow')
 
         # routine status flags
-        self.collector_drain_running = False
+        self.collector_drain_running       = False
+        self.evaporator_feed_running       = False
+        self.evaporation_running           = False
+        self.concentrate_discharge_running = False
 
         # state tracker for observer
         self.observer_states = {}
@@ -389,7 +392,7 @@ class routines:
             sen_BM201 = sensors[sensor_name_list.index("BM201")]
 
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
-            if sen_B0201.value > threshold_min_B0201:
+            if sen_B0201.value > threshold_min_B0201 and not(self.evaporation_running):
                 # print(f"[Control] Evaporation process running at runtime: {current_runtime:.2f}s")
 
                 # Turn actuators ON (depending on over-current management settings)
@@ -403,12 +406,24 @@ class routines:
                 act_M0204.set_state(True) # fans                
                 act_M0301.set_state(True) # dehumidifier
 
-            else:
+                # turn ON routine status flag
+                self.evaporation_running = True
+
+            # hysteresis control for turning evaporation off to avoid state flickering
+            elif sen_B0201.value < threshold_min_B0201 - 1.0 and self.evaporation_running:
 
                 # Turn actuators OFF
                 act_M0201.set_state(False) # disc motor
                 act_M0204.set_state(False) # fans
                 act_M0301.set_state(False) # dehumidifier
+
+                # turn OFF routine status flag
+                self.evaporation_running  = False
+
+            else:
+
+                print("WARNING: Status flag for evaporation routine not matching actuator states.")
+
 
             time.sleep(1)
 
