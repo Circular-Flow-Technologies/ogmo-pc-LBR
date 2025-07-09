@@ -408,6 +408,8 @@ class routines:
 
                 # turn ON routine status flag
                 self.evaporation_running = True
+                self.add_log_file_entry("evaporation_run", 1)
+                print("Evaporation process started")
 
             # hysteresis control for turning evaporation off to avoid state flickering
             elif sen_B0201.value < threshold_min_B0201 - 1.0 and self.evaporation_running:
@@ -419,13 +421,11 @@ class routines:
 
                 # turn OFF routine status flag
                 self.evaporation_running  = False
-
-            else:
-
-                print("WARNING: Status flag for evaporation routine not matching actuator states.")
-
+                self.add_log_file_entry("evaporation_run", 0)
+                print("Evaporation process stopped")
 
             time.sleep(1)
+
 
     def relaunch_motor(self, actuator):
         pl = self.load_parameter_list()
