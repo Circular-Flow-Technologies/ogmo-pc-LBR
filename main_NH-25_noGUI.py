@@ -38,6 +38,7 @@ def main():
     start_time = time.time()
     routines_ = routines(start_time, "parameters.toml", "log_file.csv")
     routines_.add_log_file_entry('program_run', 1)
+    print("\n Program started")
 
     # Create threads for all parallel tasks
     threads = []
@@ -62,7 +63,9 @@ def main():
             time.sleep(1)  # Main thread is waiting, keeping the program running
     except KeyboardInterrupt:
         routines_.add_log_file_entry('program_run',0)
+        print("\n Program stopped")
         routines_.handle_shutdown(pxt)
+        
     
     # Wait for threads to finish
     for thread in threads:

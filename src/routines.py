@@ -51,6 +51,9 @@ class routines:
         self.evaporation_running           = False
         self.concentrate_discharge_running = False
 
+        # timer for evaporation duty cycle
+        self.evaporation_start_time = -1000.0
+
         # state tracker for observer
         self.observer_states = {}
 
@@ -383,6 +386,8 @@ class routines:
             # read up-to-date control parameters (do this here in case parameters have been changed in toml file during program run)
             pl = self.load_parameter_list()
             threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
+            tau_M0201_runtime   = float(pl.get("tau_M0201_runtime"))
+            tau_M0201_interval = float(pl.get("tau_M0201_interval"))
 
             # get instance of required S&A
             act_M0201 = actuators[actuator_name_list.index("M0201")]
@@ -391,9 +396,12 @@ class routines:
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
             sen_BM201 = sensors[sensor_name_list.index("BM201")]
 
-            current_runtime = time.time() - (self.start_time + self.initial_wait_time)
-            if sen_B0201.value > threshold_min_B0201 and not(self.evaporation_running):
-                # print(f"[Control] Evaporation process running at runtime: {current_runtime:.2f}s")
+            current_runtime = time.time() - self.evaporation_start_time
+            evap_duty_cycle = int(current_runtime/tau_M0201_runtime) % int(tau_M0201_interval/tau_M0201_runtime) == 0
+            if sen_B0201.value > threshold_min_B0201 and not(self.evaporation_running) and evap_duty_cycle:
+
+                # start timer for evaporation duty cycle
+                self.evaporation_start_time = time.time()
 
                 # Turn actuators ON (depending on over-current management settings)
                 if sen_BM201.value == False:
@@ -412,7 +420,7 @@ class routines:
                 print("Evaporation process started")
 
             # hysteresis control for turning evaporation off to avoid state flickering
-            elif sen_B0201.value < threshold_min_B0201 - 1.0 and self.evaporation_running:
+            elif (sen_B0201.value < threshold_min_B0201 - 1.0 and self.evaporation_running) or not(evap_duty_cycle):
 
                 # Turn actuators OFF
                 act_M0201.set_state(False) # disc motor
