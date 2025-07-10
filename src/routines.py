@@ -52,7 +52,7 @@ class routines:
         self.concentrate_discharge_running = False
 
         # timer for evaporation duty cycle
-        self.evaporation_start_time = -1000.0
+        self.evaporation_start_time = start_time
 
         # state tracker for observer
         self.observer_states = {}
@@ -420,7 +420,7 @@ class routines:
                 print("Evaporation process started")
 
             # hysteresis control for turning evaporation off to avoid state flickering
-            elif (sen_B0201.value < threshold_min_B0201 - 1.0 and self.evaporation_running) or not(evap_duty_cycle):
+            elif (sen_B0201.value < (threshold_min_B0201 - 1.0) or not(evap_duty_cycle)) and self.evaporation_running:
 
                 # Turn actuators OFF
                 act_M0201.set_state(False) # disc motor
