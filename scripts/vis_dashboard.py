@@ -79,7 +79,7 @@ B0303 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0303')
 
 # Filter data frame - Actuator data
 M0101 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0101')
-M0102 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0103')
+M0102 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0102')
 M0111 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0111')
 M0112 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0112')
 M0201 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0201')
