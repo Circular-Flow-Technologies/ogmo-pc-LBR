@@ -64,37 +64,38 @@ DF["value"]      = pd.to_numeric(DF['value'], errors='coerce')
 DF["value_aux1"] = pd.to_numeric(DF['value_aux1'], errors='coerce')
 
 # Filter data frame - Sensor data
-EVENT = filter_data(DF, 'io_type', 'Event')
-CPU   = filter_data(DF, 'io_type', 'CPU', 'name', 'CPU-Temp')
-B0001 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0001')
-B0101 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0101')
-B0111 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0111')
-B0102 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0102')
-B0103 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0103')
-B0201 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0201')
-B0202 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0202')
-B0203 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0203')
-B0301 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0301')
-B0303 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0303')
+EVENT = filter_data(DF, 'io_type', 'Event').sort_values(by='timestamp')
+CPU   = filter_data(DF, 'io_type', 'CPU', 'name', 'CPU-Temp').sort_values(by='timestamp')
+B0001 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0001').sort_values(by='timestamp')
+B0101 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0101').sort_values(by='timestamp')
+B0111 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0111').sort_values(by='timestamp')
+B0102 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0102').sort_values(by='timestamp')
+B0103 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0103').sort_values(by='timestamp')
+B0201 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0201').sort_values(by='timestamp')
+B0202 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0202').sort_values(by='timestamp')
+B0203 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0203').sort_values(by='timestamp')
+B0301 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0301').sort_values(by='timestamp')
+B0303 = filter_data(DF, 'io_type', 'Sensor', 'name', 'B0303').sort_values(by='timestamp')
 
 # Filter data frame - Actuator data
-M0101 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0101')
-M0102 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0102')
-M0111 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0111')
-M0112 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0112')
-M0201 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0201')
-M0202 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0202')
-M0203 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0203')
-M0204 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0204')
-M0301 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0301')
+M0101 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0101').sort_values(by='timestamp')
+M0102 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0102').sort_values(by='timestamp')
+M0111 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0111').sort_values(by='timestamp')
+M0112 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0112').sort_values(by='timestamp')
+M0201 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0201').sort_values(by='timestamp')
+M0202 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0202').sort_values(by='timestamp')
+M0203 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0203').sort_values(by='timestamp')
+M0204 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0204').sort_values(by='timestamp')
+M0301 = filter_data(DF, 'io_type', 'Actuator', 'name', 'M0301').sort_values(by='timestamp')
 
 
 #---------------------------
 # CALCULATIONS
 #---------------------------
 
-# consider only non-zero events
-NZ_EVENT = EVENT[EVENT["value_aux1"] != 0]
+# consider only larger than detection threshold
+detect_threshold = .1
+NZ_EVENT = EVENT[EVENT["value_aux1"] > detect_threshold]
 
 # Step 2: Keep only rows where the value differs from the previous row
 NZ_EVENT = NZ_EVENT[NZ_EVENT["value_aux1"] != NZ_EVENT["value_aux1"].shift()]
@@ -110,67 +111,72 @@ avg_value = NZ_EVENT["value_aux1"].mean()
 plt.close('all')
 
 # SENSORS
-fig = plt.figure(1, figsize=[16, 22])
-
-# events
-ax = fig.add_subplot(711)
-ax.scatter(NZ_EVENT["timestamp"], NZ_EVENT["value_aux1"]*1000, c='black', s=10)
-ax.text(0.95, 0.95, f'N={num_events}\nAvg={avg_value:.1f}',
-        transform=ax.transAxes, fontsize=10,
-        verticalalignment='top', horizontalalignment='right',
-        bbox=dict(facecolor='white', alpha=0.5))
-ax.set_title("Inflow events")
-ax.set_ylim(0, 500)
-ax.set_ylabel("V [ml]")
-ax.tick_params(axis='x', labelbottom=False)
+fig = plt.figure(1, figsize=[16, 20])
 
 # liquid level collection tube
-ax = fig.add_subplot(712)
-ax.plot(B0111["timestamp"], B0111["value"]*1000, c='black')
-ax.set_title("liquid level collection tube")
-ax.set_ylim(0, 700)
-ax.set_ylabel("V [ml]")
-ax.tick_params(axis='x', labelbottom=False)
-ax.legend()
+ax1 = fig.add_subplot(711)
+ax1.plot(B0111["timestamp"], B0111["value"]*1000, c='black')
+ax1.text(0.95, 0.95, f'N={num_events}\nAvg={avg_value:.1f}',
+        transform=ax1.transAxes, fontsize=10,
+        verticalalignment='top', horizontalalignment='right',
+        bbox=dict(facecolor='white', alpha=0.5))
+ax1.set_title("liquid level collection tube")
+ax1.set_ylim(0, 700)
+ax1.set_ylabel("V [ml]")
+ax1.tick_params(axis='x', labelbottom=False)
+ax1.legend()
+
+# # events
+# ax2 = fig.add_subplot(712, sharex=ax1)
+# ax2.scatter(NZ_EVENT["timestamp"], NZ_EVENT["value_aux1"]*1000, c='black', s=10)
+# ax2.text(0.95, 0.95, f'N={num_events}\nAvg={avg_value:.1f}',
+#         transform=ax2.transAxes, fontsize=10,
+#         verticalalignment='top', horizontalalignment='right',
+#         bbox=dict(facecolor='white', alpha=0.5))
+# ax2.set_title("Inflow events")
+# ax2.set_ylim(0, 700)
+# ax2.set_xlim(B0001["timestamp"].min(), B0001["timestamp"].max())
+# ax2.set_ylabel("V [ml]")
+# ax2.tick_params(axis='x', labelbottom=False)
 
 # liquid level
-ax = fig.add_subplot(713)
+ax3 = fig.add_subplot(712)
 low_lim_S, up_lim_S = 15, 40.3 
 low_lim_E = 12
 lw = 1.0
-S_ax, = ax.plot(B0101["timestamp"], B0101["value"], label="Stabilizor")
+S_ax, = ax3.plot(B0101["timestamp"], B0101["value"], label="Stabilizor")
 S_color = S_ax.get_color()
-ax.plot(B0101["timestamp"], low_lim_S*np.ones_like(B0101["value"]), '--', color = S_color, label="Stab. lower limit", linewidth=lw)
-ax.plot(B0101["timestamp"],  up_lim_S*np.ones_like(B0101["value"]), '-.', color = S_color, label="Stab. upper limit", linewidth=lw)
-E_ax, = ax.plot(B0201["timestamp"], B0201["value"], label="Evaporator")
+ax3.plot(B0101["timestamp"], low_lim_S*np.ones_like(B0101["value"]), '--', color = S_color, label="Stab. lower limit", linewidth=lw)
+ax3.plot(B0101["timestamp"],  up_lim_S*np.ones_like(B0101["value"]), '-.', color = S_color, label="Stab. upper limit", linewidth=lw)
+E_ax, = ax3.plot(B0201["timestamp"], B0201["value"], label="Evaporator")
 E_color = E_ax.get_color()
-ax.plot(B0201["timestamp"], low_lim_E*np.ones_like(B0101["value"]), '--', color = E_color, label="Evap. lower limit", linewidth=lw)
-ax.set_title("Liquid level")
-ax.set_ylim(0, 50)
-ax.set_ylabel("V [l]")
-ax.tick_params(axis='x', labelbottom=False)
-ax.legend()
+ax3.plot(B0201["timestamp"], low_lim_E*np.ones_like(B0101["value"]), '--', color = E_color, label="Evap. lower limit", linewidth=lw)
+ax3.set_title("Liquid level")
+ax3.set_ylim(0, 50)
+ax3.set_ylabel("V [l]")
+ax3.tick_params(axis='x', labelbottom=False)
+ax3.legend()
 
 # ph
-ax = fig.add_subplot(714)
-ax.plot(B0102["timestamp"], B0102["value"], label="Stabilizor")
-ax.plot(B0202["timestamp"], B0202["value"], label="Evaporator")
-ax.plot(B0202["timestamp"], 11.5*np.ones_like(B0202["value"]), 'k--', label="ph = 11.5", linewidth=lw)
-ax.set_title("pH")
-ax.set_ylim(0, 14)
-ax.set_ylabel("pH")
-ax.tick_params(axis='x', labelbottom=False)
-ax.legend()
+ax4 = fig.add_subplot(713)
+ax4.plot(B0102["timestamp"], B0102["value"], label="Stabilizor")
+ax4.plot(B0202["timestamp"], B0202["value"], label="Evaporator")
+ax4.plot(B0202["timestamp"], 11.5*np.ones_like(B0202["value"]), 'k--', label="ph = 11.5", linewidth=lw)
+ax4.set_title("pH")
+ax4.set_ylim(0, 14)
+ax4.set_ylabel("pH")
+ax4.tick_params(axis='x', labelbottom=False)
+ax4.legend()
 
 # temperature (liquid)
-ax = fig.add_subplot(715)
-ax.plot(B0103["timestamp"], B0103["value"], label="Stabilizor")
-ax.plot(B0203["timestamp"], B0203["value"], label="Evaporator")
-ax.set_title("Temperature (liquid)")
-ax.set_ylim(15, 35)
-ax.set_ylabel("T [°C]")
-ax.tick_params(axis='x', labelbottom=False)
-ax.legend()
+ax5 = fig.add_subplot(714)
+ax5.plot(B0103["timestamp"], B0103["value"], label="Stabilizor")
+ax5.plot(B0203["timestamp"], B0203["value"], label="Evaporator")
+ax5.set_title("Temperature (liquid)")
+ax5.set_ylim(20, 40)
+ax5.set_ylabel("T [°C]")
+ax5.tick_params(axis='x', labelbottom=False)
+ax5.legend()
 
 # # rel. humidity (process air)
 # ax = fig.add_subplot(815)
@@ -193,20 +199,20 @@ ax.legend()
 # ax.legend()
 
 # system current draw()
-ax = fig.add_subplot(716)
-ax.plot(B0001["timestamp"], B0001["value"], color=[0.5, 0.5, 0.5])
-ax.set_title("System current draw")
-ax.set_ylim(0, 5)
-ax.set_ylabel("I [A]")
-ax.tick_params(axis='x', labelbottom=False)
+ax6 = fig.add_subplot(715)
+ax6.plot(B0001["timestamp"], B0001["value"], color=[0.5, 0.5, 0.5])
+ax6.set_title("System current draw")
+ax6.set_ylim(0, 5)
+ax6.set_ylabel("I [A]")
+ax6.tick_params(axis='x', labelbottom=False)
 
 # CPU-Temp
-ax = fig.add_subplot(717)
-ax.plot(CPU["timestamp"], CPU["value"], 'k')
-ax.set_title("CPU-temperature")
-ax.set_ylim(0, 80)
-ax.set_ylabel("T [°C]")
-ax.set_xlabel("time")
+ax7 = fig.add_subplot(716)
+ax7.plot(CPU["timestamp"], CPU["value"], 'k')
+ax7.set_title("CPU-temperature")
+ax7.set_ylim(0, 80)
+ax7.set_ylabel("T [°C]")
+ax7.set_xlabel("time")
 
 
 plt.xticks(rotation=45)

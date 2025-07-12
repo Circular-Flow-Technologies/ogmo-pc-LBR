@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import linregress
 from datetime import datetime
 from pathlib import Path
 import re
@@ -70,21 +72,50 @@ for file in selected_files:
 # Concatenate all selected sensor data
 df = pd.concat(DF, ignore_index=True)
 
-df["timestamp"] = pd.to_datetime(df["timestamp"]) # for nicer plotting results
+# for nicer plotting results
+df["timestamp"]  = pd.to_datetime(df["timestamp"]) 
+df["value"]      = pd.to_numeric(df['value'], errors='coerce')
+df["value_aux1"] = pd.to_numeric(df['value_aux1'], errors='coerce')
+df               = df.sort_values(by='timestamp')
+
+###############
+# CALCULATION #
+###############
+
+# linear fit to sample point for selected period
+
+# --- Define time window ---
+# Pick a specific start day (e.g. July 10, 2025 at 12:00)
+start_time = pd.Timestamp('2025-07-06 00:00:00')
+end_time   = pd.Timestamp('2025-07-06 18:00:00')
+
+# Filter the DataFrame for the desired time window
+df_window = df[(df['timestamp'] >= start_time) & (df['timestamp'] <= end_time)]
+
+# linear regression
+x = df_window['timestamp'].astype(np.int64) / 1e9  # Convert nanoseconds to seconds
+y = df_window['value']
+slope, intercept, r_value, p_value, std_err = linregress(x, y)
 
 # plotting
 plt.close('all')
+default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+slope_text = f"Slope: {slope*3600000:.4f} [ml/h]"
+lw = 0.7
 
 fig = plt.figure(1)
 
 ax = fig.add_subplot(111)
 
-ax.plot(df["timestamp"], df["value"], 'k')
+ax.plot(df_window["timestamp"], y, c=[0.5, 0.5, 0.5], linewidth=lw, label='Sensor '+device_name)
+# ax.plot(df_window["timestamp"], intercept + slope * x, c='black', label='Linear fit')
+# ax.text(df_window['timestamp'].iloc[0], 0.8*y.max(), slope_text, color='black', fontsize=12)
 
 ax.set_title(device_name)
 ax.set_xlabel("time")
-ax.set_ylabel("(tbd)")
+ax.set_ylabel("I [A]")
 
+plt.legend()
 plt.xticks(rotation=45)
 plt.tight_layout()
 
