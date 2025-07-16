@@ -392,6 +392,7 @@ class routines:
             # get instance of required S&A
             act_M0201 = actuators[actuator_name_list.index("M0201")]
             act_M0204 = actuators[actuator_name_list.index("M0204")]
+            act_M0205 = actuators[actuator_name_list.index("M0205")]
             act_M0301 = actuators[actuator_name_list.index("M0301")]
             sen_B0201 = sensors[sensor_name_list.index("B0201")]
             sen_BM201 = sensors[sensor_name_list.index("BM201")]
@@ -411,7 +412,8 @@ class routines:
                     act_M0201.set_state(False)
                     self.relaunch_motor(act_M0201) # relaunch depends on flag in parameters file
 
-                act_M0204.set_state(True) # fans                
+                act_M0204.set_state(True) # fans out                 
+                act_M0205.set_state(True) # fans in           
                 act_M0301.set_state(True) # dehumidifier
 
                 # turn ON routine status flag
@@ -424,7 +426,8 @@ class routines:
 
                 # Turn actuators OFF
                 act_M0201.set_state(False) # disc motor
-                act_M0204.set_state(False) # fans
+                act_M0204.set_state(False) # fans out
+                act_M0205.set_state(False) # fans in
                 act_M0301.set_state(False) # dehumidifier
 
                 # turn OFF routine status flag

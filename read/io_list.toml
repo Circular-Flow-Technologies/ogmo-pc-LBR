@@ -219,10 +219,17 @@ address = "digital_out3"
 
 [[actuator]]
 name = "M0204"
-descr = "evaporator fan(s)"
+descr = "evaporator fan(s) blowing out"
 type = "PX-Rel"
 com_prot = "SPI"
 address = "relay0"
+
+[[actuator]]
+name = "M0205"
+descr = "evaporator fan(s) blowing in"
+type = "PX-Rel"
+com_prot = "SPI"
+address = "relay1"
 
 [[actuator]]
 name = "M0301"
