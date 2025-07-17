@@ -16,7 +16,7 @@ m_dot_M0102 =  549. /(1000*60.)
 m_dot_M0203 = 1430. /(1000*60.)
 
 # number of intervals (chosen)
-N_f_evi  = 12.
+N_f_evi  =  2.
 N_f_conc =  1.
 
 # evaporator overflow fraction
