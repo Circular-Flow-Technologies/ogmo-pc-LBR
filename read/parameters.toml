@@ -12,7 +12,7 @@ threshold_min_B0111        = "0.1"   # minimum input volume in collector for eve
 
 # stabilizer stirrer
 tau_M0101_interval         = "1800"
-tau_M0101_runtime          = "120"
+tau_M0101_runtime          = "60"
 tau_M0101_delay            = "189"
 
 # evaporator feed
