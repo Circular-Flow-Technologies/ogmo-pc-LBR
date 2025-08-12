@@ -13,13 +13,13 @@ threshold_min_B0111        = "0.1"   # minimum input volume in collector for eve
 # stabilizer stirrer
 tau_M0101_interval         = "1800"
 tau_M0101_runtime          = "60"
-tau_M0101_delay            = "189"
+tau_M0101_delay            = "89"
 
 # evaporator feed
-tau_M0102_interval         = "14400"
-tau_M0102_runtime          = "219"
+tau_M0102_interval         = "7200"
+tau_M0102_runtime          = "109"
 tau_M0102_delay            = "0"
-threshold_min_B0101        = "15.0"    # minimum liquid level in stabilizer
+threshold_min_B0101        = "10.0"    # minimum liquid level in stabilizer
 threshold_max_B0101        = "40.3"    # maximum liquid level in stabilizer (overflow position)
 threshold_min_B0102        = "11.0"   # minimum pH value in stabilizer
 

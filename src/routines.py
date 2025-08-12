@@ -412,9 +412,9 @@ class routines:
                     act_M0201.set_state(False)
                     self.relaunch_motor(act_M0201) # relaunch depends on flag in parameters file
 
-                act_M0204.set_state(True) # fans out                 
-                act_M0205.set_state(True) # fans in           
-                act_M0301.set_state(True) # dehumidifier
+                #act_M0204.set_state(True) # fans out                 
+                #act_M0205.set_state(True) # fans in           
+                #act_M0301.set_state(True) # dehumidifier
 
                 # turn ON routine status flag
                 self.evaporation_running = True
