@@ -1,4 +1,4 @@
-machine_id                 = "NH-25-002"
+machine_id                 = "NH-25-003"
 dataq_sampling_interval    = "10"
 initial_wait_time          = "5"
 abort_flag                 = "False"

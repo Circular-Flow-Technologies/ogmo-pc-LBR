@@ -40,8 +40,8 @@ type = "PX-AI"
 com_prot = "SPI"
 address = "analog_in2"
 quad_gain = "0.0"
-gain = "-0.06153394495412844"#"-0.06113432835820896 (old)"
-offset = "0.6964449541284404"#"0.6861194029850746 (old)"
+gain = "-0.13784615384615384"
+offset = "0.7653076923076922"
 calibrated = "yes"
 
 [[sensor]]
@@ -187,14 +187,14 @@ name = "M0111"
 descr = "collector drain pump (peri pump)"
 type = "PX-DO"
 com_prot = "SPI"
-address = "digital_out4"
+address = "digital_out3"
 
 [[actuator]]
 name = "M0112"
 descr = "collector flush pump (peri pump)"
 type = "PX-DO"
 com_prot = "SPI"
-address = "digital_out5"
+address = "digital_out4"
 
 [[actuator]]
 name = "M0201"
@@ -215,7 +215,7 @@ name = "M0203"
 descr = "concentrate discharge pump (peri pump)"
 type = "PX-DO"
 com_prot = "SPI"
-address = "digital_out3"
+address = "digital_out5"
 
 [[actuator]]
 name = "M0204"
