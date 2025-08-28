@@ -36,7 +36,7 @@ def main():
 
     # Initialize routines
     start_time = time.time()
-    routines_ = routines(start_time, "parameters_NH-25-003.toml", "log_file_NH-25-003.csv")
+    routines_ = routines(start_time, "parameters.toml", "log_file.csv")
     routines_.add_log_file_entry('program_run', 1)
     print("\n Program started")
 

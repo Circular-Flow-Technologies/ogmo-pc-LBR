@@ -173,7 +173,7 @@ name = "M0101"
 descr = "stabilizer stirrer"
 type = "PX-DO"
 com_prot = "SPI"
-address = "digital_out6"
+address = "digital_out8"
 
 [[actuator]]
 name = "M0102"
@@ -208,7 +208,7 @@ name = "M0202"
 descr = "screw motor"
 type = "PX-DO"
 com_prot = "SPI"
-address = "digital_out8"
+address = "digital_out6"
 
 [[actuator]]
 name = "M0203"
