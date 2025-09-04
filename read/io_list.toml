@@ -29,8 +29,8 @@ type = "PX-AI"
 com_prot = "SPI"
 address = "analog_in1"
 quad_gain = "0.0"
-gain = "-9.615023474178404"
-offset = "52.305164319248824"
+gain = "-10.922666666666666"
+offset = "44.879999999999995"
 calibrated = "yes"
 
 [[sensor]]
