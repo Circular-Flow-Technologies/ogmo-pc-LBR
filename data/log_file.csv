@@ -193,3 +193,8 @@ datetime,tag,value
 2025-09-18 08:56:03,event_number,85.0
 2025-09-18 08:56:20,cumulative_inflow,21.48630769230769
 2025-09-18 09:15:15,program_run,0
+2025-09-18 12:17:59,program_run,1
+2025-09-18 12:18:09,B0102_pH_low,2.927
+2025-09-18 12:18:09,B0202_pH_low,7.646
+2025-09-18 12:18:09,event_number,85.0
+2025-09-18 12:18:09,B0401_concentrate_full,False

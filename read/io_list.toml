@@ -83,9 +83,9 @@ descr = "Level sensor evaporator"
 type = "PX-AI"
 com_prot = "SPI"
 address = "analog_in3"
-quad_gain = "-0.03976849850191494"
-gain = "-2.693306026472488"
-offset = "22.438821253840036"
+quad_gain = "0.0371357872701226"
+gain = "-1.5724988628997085"
+offset = "21.789539094281675"
 calibrated = "yes"
 
 [[sensor]]
