@@ -497,8 +497,8 @@ class routines:
             pl = self.load_parameter_list()
             threshold_min_B0101 = float(pl.get("threshold_min_B0101"))
             threshold_max_B0101 = float(pl.get("threshold_max_B0101"))
-            threshold_min_B0102 = float(pl.get("threshold_min_B0102"))
-            threshold_min_B0202 = float(pl.get("threshold_min_B0202"))
+            threshold_max_B0102 = float(pl.get("threshold_max_B0102"))
+            threshold_max_B0202 = float(pl.get("threshold_max_B0202"))
             threshold_min_B0201 = float(pl.get("threshold_min_B0201"))
             threshold_min_B0111 = float(pl.get("threshold_min_B0111"))
 
@@ -508,13 +508,13 @@ class routines:
             time.sleep(10)
             current_runtime = time.time() - (self.start_time + self.initial_wait_time)
 
-            if self.check_and_log_rising_edge("B0102_low_pH", sen["B0102"].value < threshold_min_B0102,
-                                        "B0102_pH_low", sen["B0102"].value):
+            if self.check_and_log_rising_edge("B0102_high_pH", sen["B0102"].value > threshold_max_B0102,
+                                        "B0102_pH_high", sen["B0102"].value):
                 print("\n[[GUI]]")
                 print("pH in Stabilizer is too low.")
 
-            if self.check_and_log_rising_edge("B0202_low_pH", sen["B0202"].value < threshold_min_B0202,
-                                        "B0202_pH_low", sen["B0202"].value):
+            if self.check_and_log_rising_edge("B0202_high_pH", sen["B0202"].value > threshold_max_B0202,
+                                        "B0202_pH_high", sen["B0202"].value):
                 print("\n[[GUI]]")
                 print("pH in Evaporator is too low.")
 

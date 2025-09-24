@@ -19,15 +19,15 @@ tau_M0101_delay            = "89"
 tau_M0102_interval         = "7200"
 tau_M0102_runtime          = "109"
 tau_M0102_delay            = "0"
-threshold_min_B0101        = "10.0"    # minimum liquid level in stabilizer
+threshold_min_B0101        = "12.0"    # minimum liquid level in stabilizer
 threshold_max_B0101        = "40.3"    # maximum liquid level in stabilizer (overflow position)
-threshold_min_B0102        = "11.0"   # minimum pH value in stabilizer
+threshold_max_B0102        = "3.5"     # maximum pH value in stabilizer
 
 # evaporation
 tau_M0201_interval         = "7200"
 tau_M0201_runtime          = "3600"
 threshold_min_B0201        = "13"      # minimum liquid level in evaporator
-threshold_min_B0202        = "11.0"   # minimum pH value in evaporator
+threshold_max_B0202        = "3.5"   # maximum pH value in evaporator
 
 # concentrate discharge
 tau_M0203_interval         = "86400"
