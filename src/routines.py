@@ -511,12 +511,12 @@ class routines:
             if self.check_and_log_rising_edge("B0102_high_pH", sen["B0102"].value > threshold_max_B0102,
                                         "B0102_pH_high", sen["B0102"].value):
                 print("\n[[GUI]]")
-                print("pH in Stabilizer is too low.")
+                print("pH in Stabilizer is too high.")
 
             if self.check_and_log_rising_edge("B0202_high_pH", sen["B0202"].value > threshold_max_B0202,
                                         "B0202_pH_high", sen["B0202"].value):
                 print("\n[[GUI]]")
-                print("pH in Evaporator is too low.")
+                print("pH in Evaporator is too high.")
 
             if self.check_and_log_rising_edge("B0101_liquid_low", sen["B0101"].value < threshold_min_B0101,
                                         "B0101_level_low", sen["B0101"].value):
