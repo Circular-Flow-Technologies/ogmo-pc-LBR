@@ -19,7 +19,7 @@ tau_M0101_delay            = "209"
 tau_M0102_interval         = "14400"
 tau_M0102_runtime          = "219"
 tau_M0102_delay            = "0"
-threshold_min_B0101        = "12.0"    # minimum liquid level in stabilizer
+threshold_min_B0101        = "17.0"    # minimum liquid level in stabilizer
 threshold_max_B0101        = "40.3"    # maximum liquid level in stabilizer (overflow position)
 threshold_max_B0102        = "3.5"     # maximum pH value in stabilizer
 
