@@ -1582,3 +1582,8 @@ datetime,tag,value
 2026-03-29 10:17:40,evaporation_run,0
 2026-03-29 11:17:40,evaporation_run,1
 2026-03-29 12:17:40,evaporation_run,0
+2026-03-29 18:13:12,program_run,1
+2026-03-29 18:13:14,evaporation_run,1
+2026-03-29 18:13:22,event_number,151.0
+2026-03-29 18:13:22,B0401_concentrate_full,False
+2026-03-29 18:13:38,cumulative_inflow,51.32711538461536
