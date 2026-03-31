@@ -25,7 +25,7 @@ threshold_max_B0102        = "3.5"     # maximum pH value in stabilizer
 
 # evaporation
 tau_M0201_interval         = "7200"
-tau_M0201_runtime          = "3600"
+tau_M0201_runtime          = "5400"
 threshold_min_B0201        = "2.0"      # minimum liquid level in evaporator
 threshold_max_B0202        = "3.5"   # maximum pH value in evaporator
 
